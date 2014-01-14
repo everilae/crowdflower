@@ -1,0 +1,9 @@
+*.pyc
+*.pyo
+*.mo
+__pycache__
+*.egg-info
+*.sqlite
+nosetests.xml
+coverage.xml
+.coverage
