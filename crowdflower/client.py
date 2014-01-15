@@ -163,3 +163,9 @@ class Client(object):
 
         with context(file) as fp:
             return self._upload_job(fp.read(), type_, job_id)
+
+    def delete_job(self, job_id):
+        """
+        Delete job ``job_id`` from CrowdFlower.
+        """
+        self._call('jobs/{}.json'.format(job_id), method='delete')

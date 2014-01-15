@@ -141,3 +141,12 @@ class Job(object):
         @type type_: str
         """
         self._client.upload_job_file(file, type_, self.id)
+
+    def delete(self):
+        """
+        Delete this job, removing it from CrowdFlower. Calling Job instance
+        will be invalid after deletion and must not be used anymore.
+        """
+        self._client.delete_job(self.id)
+        self._json = None
+        self._changes = None
