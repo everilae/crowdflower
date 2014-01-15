@@ -8,8 +8,21 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 class JudgmentAggregate(Base):
     """
     CrowdFlower Judgment aggregate.
+
+    :param client: Client instance that created this job instance
+    :type client: crowdflower.client.Client
+    :param job: Job instance that this Judgment belongs to
+    :type job: crowdflower.job.Job
+    :param data: Job JSON dictionary
+    :type data: dict
     """
 
+    #: Read only attributes. These have the underscore prefix due to
+    #: CrowdFlower sending them as such.
+    #:
+    #: .. todo::
+    #:
+    #:    Remove underscore prefix from attributes.
     RO_ATTRS = frozenset("""
         _agreement
         _ids
@@ -18,16 +31,6 @@ class JudgmentAggregate(Base):
         """.strip().split())
 
     def __init__(self, client, job, data):
-        """
-        Initialize from given JSON dictionary.
-
-        :param client: Client instance that created this job instance
-        :type client: crowdflower.client.Client
-        :param job: Job instance that this Judgment belongs to
-        :type job: crowdflower.job.Job
-        :param data: Job JSON dictionary
-        :type data: dict
-        """
         self._client = client
         self._job = job
         super(JudgmentAggregate, self).__init__(data)
@@ -61,8 +64,16 @@ class JudgmentAggregate(Base):
 class Judgment(Base):
     """
     CrowdFlower Judgment.
+
+    :param client: Client instance that created this job instance
+    :type client: crowdflower.client.Client
+    :param job: Job instance that this Judgment belongs to
+    :type job: crowdflower.job.Job
+    :param data: Job JSON dictionary
+    :type data: dict
     """
 
+    #: Read only attributes
     RO_ATTRS = frozenset("""
         started_at
         created_at
@@ -77,6 +88,7 @@ class Judgment(Base):
         data
         """.strip().split())
 
+    #: Read/write attributes
     RW_ATTRS = frozenset("""
         webhook_sent_at
         reviewed
@@ -90,16 +102,6 @@ class Judgment(Base):
         """.strip().split())
 
     def __init__(self, client, job, data):
-        """
-        Initialize from given JSON dictionary.
-
-        :param client: Client instance that created this job instance
-        :type client: crowdflower.client.Client
-        :param job: Job instance that this Judgment belongs to
-        :type job: crowdflower.job.Job
-        :param data: Job JSON dictionary
-        :type data: dict
-        """
         self._client = client
         self._job = job
         super(Judgment, self).__init__(data)

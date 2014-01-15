@@ -20,15 +20,14 @@ def _nopcontext(file):
 
 class Client(object):
     """
-    CrowdFlower API client.
+    CrowdFlower API client. Requires API ``key`` for authentication.
+
+    :param key: CrowdFlower API key. Required for authentication.
     """
 
     API_URL = 'https://api.crowdflower.com/v1/{path}'
 
     def __init__(self, key):
-        """
-        :param key: CrowdFlower API key. Required for authentication.
-        """
         self._key = key
 
     def _call(self, path, data=None, headers=None, query={}, method='get'):
@@ -73,7 +72,7 @@ class Client(object):
 
     def update_job(self, job_id, attrs):
         """
-        Update Job <job_id> with ``attrs``
+        Update Job ``job_id`` with ``attrs``
 
         :param job_id: Id of crowdflower job to update
         :type job_id: int
@@ -87,7 +86,7 @@ class Client(object):
 
     def get_job(self, job_id):
         """
-        Get Job <job_id>
+        Get Job ``job_id``
 
         :param job_id: Id of crowdflower job to get
         :type job_id: int
@@ -177,10 +176,12 @@ class Client(object):
         """
         Get JudgmentAggregates for Job.
 
-        NOTE: Return value from judgments.json seems to be a dictionary,
-        where the keys are Unit ids and values an aggregate of a sort. The
-        aggregate lacks documentation at https://crowdflower.com/docs-api ,
-        so this code is very very likely to break in the future.
+        .. note::
+
+           Return value from judgments.json seems to be a dictionary,
+           where the keys are Unit ids and values an aggregate of a sort. The
+           aggregate lacks documentation at https://crowdflower.com/docs-api ,
+           so this code is very very likely to break in the future.
         """
         return list(
             map(functools.partial(JudgmentAggregate, self, job),

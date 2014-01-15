@@ -8,8 +8,14 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 class Job(Base):
     """
     CrowdFlower Job.
+
+    :param client: Client instance that created this job instance
+    :type client: crowdflower.client.Client
+    :param data: Job JSON dictionary
+    :type data: dict
     """
 
+    #: Read only attributes
     RO_ATTRS = frozenset("""
         completed
         completed_at
@@ -22,6 +28,7 @@ class Job(Base):
         updated_at
         """.strip().split())
 
+    #: Read/write attributes
     RW_ATTRS = frozenset("""
         auto_order
         auto_order_threshold
@@ -52,14 +59,6 @@ class Job(Base):
         """.strip().split())
 
     def __init__(self, client, data):
-        """
-        Initialize from given JSON dictionary.
-
-        :param client: Client instance that created this job instance
-        :type client: crowdflower.client.Client
-        :param data: Job JSON dictionary
-        :type data: dict
-        """
         self._client = client
         super(Job, self).__init__(data)
 
@@ -69,9 +68,11 @@ class Job(Base):
         'cml' attributes must be set or provided and valid for any changes
         to really persist.
 
-        The API will happily return a "valid" response when sent only the
-        'instructions', but nothing will change on the server side without
-        all three. The caller is responsible for providing valid CML.
+        .. warning::
+
+           The API will happily return a "valid" response when sent only the
+           'instructions', but nothing will change on the server side without
+           all three. The caller is responsible for providing valid CML.
         """
         for attr in {'title', 'instructions', 'cml'}:
             if not self._changes.get(attr, self._json[attr]):
