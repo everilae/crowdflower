@@ -57,8 +57,6 @@ class Client(object):
             data=data,
             headers=headers
         )
-        print(resp.url)
-        print(resp.text)
         resp.raise_for_status()
         resp_json = resp.json()
 
@@ -67,8 +65,8 @@ class Client(object):
 
         return resp_json
 
-    def _make_job_attrs(self, attrs):
-        return {'job[{}]'.format(k): v for k, v in attrs.items()}
+    def _make_cf_attrs(self, type_, attrs):
+        return {'{}[{}]'.format(type_, k): v for k, v in attrs.items()}
 
     def update_job(self, job_id, attrs):
         """
@@ -81,41 +79,45 @@ class Client(object):
         """
         return self._call(
             path='jobs/{}.json'.format(job_id),
-            data=self._make_job_attrs(attrs),
+            data=self._make_cf_attrs('job', attrs),
             method='put')
 
     def get_job(self, job_id):
+        """
+        Get Job <job_id>
+
+        @param job_id: Id of crowdflower job to get
+        @type job_id: int
+        @return: Crowdflower job
+        @rtype: crowdflower.job.Job
+        """
         return Job(self, self._call('jobs/{}.json'.format(job_id)))
 
-    def _upload_job(self, data, type_, attrs):
+    def _upload_job(self, data, type_):
         headers = {'Content-Type': type_}
-        return Job(self, self._call('jobs/upload.json',
-                                    data=data,
-                                    headers=headers,
-                                    query=self._make_job_attrs(attrs)))
+        return Job(self, self._call('jobs/upload.json', data, headers))
 
-    def upload_job(self, data, attrs={}):
+    def upload_job(self, data):
         """
         Upload given data as JSON.
 
         @param data: Collection of JSON serializable objects
-        @param attrs: Initial attributes for job
         @return: crowdflower.job.Job instance
         @rtype: crowdflower.job.Job
         """
         return self._upload_job(
             '\n'.join(map(json.dumps, data)).encode('utf-8'),
-            'application/json',
-            self._make_job_attrs(attrs)
+            'application/json'
         )
 
-    def upload_job_file(self, file, type_=None, attrs={}):
+    def upload_job_file(self, file, type_=None):
         """
         Upload a file like object or open a file for reading and upload.
 
         Caller is responsible for handling context on file like objects.
         Type must be provided with data as there is no information to make a
-        guess from. File data must be bytes, not text (unicode).
+        guess from. If file like object provides text (unicode) data, it
+        will be encoded to UTF-8 bytes.
 
         If explicit ``type_`` is not provided and the ``file`` is a string
         containing a filename to open, will make a guess with mimetypes.
@@ -128,8 +130,9 @@ class Client(object):
         @type client: crowdflower.client.Client
         @param file: A file like object or a filename string, contains UTF-8
                      encoded data
+        @type file: str or file
         @param type_: Explicit type, required for file like objects
-        @param attrs: Initial attributes for job
+        @type type_: str
         @return: crowdflower.job.Job instance
         @rtype: crowdflower.job.Job
         """
@@ -148,5 +151,4 @@ class Client(object):
             raise ValueError("Type not set or could not guess type")
 
         with context(file) as fp:
-            return self._upload_job(fp.read(), type_,
-                                    self._make_job_attrs(attrs))
+            return self._upload_job(fp.read(), type_)
