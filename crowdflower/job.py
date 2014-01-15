@@ -53,7 +53,7 @@ class Job(Base):
 
     def __init__(self, client, data):
         """
-        Initialize from given (possibly empty) JSON dictionary.
+        Initialize from given JSON dictionary.
         @param client: Client instance that created this job instance
         @type client: crowdflower.client.Client
         @param data: Job JSON dictionary
@@ -77,8 +77,8 @@ class Job(Base):
                 raise RuntimeError(
                     "missing required attribute '{}'".format(attr))
 
-        super(Job, self).update(self._client.update_job(self.id,
-                                                        self._changes))
+        super(Job, self)._update(self._client.update_job(
+            self.id, self._changes))
 
     def upload(self, data):
         """
