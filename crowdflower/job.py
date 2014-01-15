@@ -169,3 +169,36 @@ class Job(object):
 
         self._json.update(self._client.update_job(self.id, self._changes))
         self._changes = {}
+
+    def upload(self, data):
+        """
+        Upload given data as JSON.
+
+        @param data: Iterable of JSON serializable objects
+        @type data: collections.abc.Iterable
+        """
+        self._client.upload_job(data, self.id)
+
+    def upload_file(self, file, type_=None):
+        """
+        Upload a file like object or open a file for reading and upload.
+
+        Caller is responsible for handling context on file like objects.
+        Type must be provided with data as there is no information to make a
+        guess from. If file like object provides text (unicode) data, it
+        will be encoded to UTF-8 bytes.
+
+        If explicit ``type_`` is not provided and the ``file`` is a string
+        containing a filename to open, will make a guess with mimetypes.
+        Returns a new Job instance related to the uploaded data.
+
+        If type information is not given and guessing did not work,
+        will raise a ValueError.
+
+        @param file: A file like object or a filename string, contains UTF-8
+                     encoded data
+        @type file: str or file
+        @param type_: Explicit type, required for file like objects
+        @type type_: str
+        """
+        self._client.upload_job_file(file, type_, self.id)

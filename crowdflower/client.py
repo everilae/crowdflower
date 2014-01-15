@@ -70,7 +70,7 @@ class Client(object):
 
     def update_job(self, job_id, attrs):
         """
-        Update Job <job_id> with ``data``
+        Update Job <job_id> with ``attrs``
 
         @param job_id: Id of crowdflower job to update
         @type job_id: int
@@ -93,24 +93,35 @@ class Client(object):
         """
         return Job(self, self._call('jobs/{}.json'.format(job_id)))
 
-    def _upload_job(self, data, type_):
+    def _upload_job(self, data, type_, job_id):
         headers = {'Content-Type': type_}
-        return Job(self, self._call('jobs/upload.json', data, headers))
 
-    def upload_job(self, data):
+        if job_id is not None:
+            path = 'jobs/{}/upload.json'.format(job_id)
+
+        else:
+            path = 'jobs/upload.json'
+
+        return Job(self, self._call(path, data, headers))
+
+    def upload_job(self, data, job_id=None):
         """
         Upload given data as JSON.
 
-        @param data: Collection of JSON serializable objects
+        @param data: Iterable of JSON serializable objects
+        @type data: collections.abc.Iterable
+        @param job_id: Id of a crowdflower job to update (optional)
+        @type job_id: int
         @return: crowdflower.job.Job instance
         @rtype: crowdflower.job.Job
         """
         return self._upload_job(
             '\n'.join(map(json.dumps, data)).encode('utf-8'),
-            'application/json'
+            'application/json',
+            job_id
         )
 
-    def upload_job_file(self, file, type_=None):
+    def upload_job_file(self, file, type_=None, job_id=None):
         """
         Upload a file like object or open a file for reading and upload.
 
@@ -126,13 +137,13 @@ class Client(object):
         If type information is not given and guessing did not work,
         will raise a ValueError.
 
-        @param client: crowdflower.client.Client instance used for uploading
-        @type client: crowdflower.client.Client
         @param file: A file like object or a filename string, contains UTF-8
                      encoded data
         @type file: str or file
         @param type_: Explicit type, required for file like objects
         @type type_: str
+        @param job_id: Id of a crowdflower job to update (optional)
+        @type job_id: int
         @return: crowdflower.job.Job instance
         @rtype: crowdflower.job.Job
         """
@@ -151,4 +162,4 @@ class Client(object):
             raise ValueError("Type not set or could not guess type")
 
         with context(file) as fp:
-            return self._upload_job(fp.read(), type_)
+            return self._upload_job(fp.read(), type_, job_id)
