@@ -119,3 +119,16 @@ class Job(Base):
         will be invalid after deletion and must not be used anymore.
         """
         self._client.delete_job(self.id)
+
+    @property
+    def judgments(self):
+        """
+        List of aggregated judgments for this job.
+        """
+        return self._client.get_judgmentaggregates(self)
+
+    def get_judgment(self, judgment_id):
+        """
+        Get single Judgment for this job.
+        """
+        return self._client.get_judgment(self, judgment_id)

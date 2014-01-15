@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
 
+from .job import Job
+from .judgment import JudgmentAggregate, Judgment
 import contextlib
-from crowdflower.job import Job
 import functools
 import json
 import mimetypes
-import six
 import requests
+import six
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -169,3 +170,27 @@ class Client(object):
         Delete job ``job_id`` from CrowdFlower.
         """
         self._call('jobs/{}.json'.format(job_id), method='delete')
+
+    def get_judgmentaggregates(self, job):
+        """
+        Get JudgmentAggregates for Job.
+
+        NOTE: Return value from judgments.json seems to be a dictionary,
+        where the keys are Unit ids and values an aggregate of a sort. The
+        aggregate lacks documentation at https://crowdflower.com/docs-api ,
+        so this code is very very likely to break in the future.
+        """
+        return list(
+            map(functools.partial(JudgmentAggregate, self, job),
+                self._call('jobs/{}/judgments.json'.format(job.id)).values())
+        )
+
+    def get_judgment(self, job, judgment_id):
+        """
+        Get Judgment ``judgment_id`` for ``job``.
+        """
+        return Judgment(
+            self, job,
+            self._call('jobs/{}/judgments/{}.json'.format(job.id,
+                                                          judgment_id))
+        )
