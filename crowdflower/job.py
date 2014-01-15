@@ -27,7 +27,7 @@ class Job(Base):
         auto_order_threshold
         auto_order_timeout
         cml
-        cml_fields
+        fields
         confidence_fields
         css
         custom_key

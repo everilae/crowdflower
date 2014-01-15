@@ -44,6 +44,8 @@ class Client(object):
         @type query: dict
         @param method: GET, POST, PUT or DELETE
         @type method: str
+        @returns: JSON dictionary
+        @rtype: dict
         """
         if data and isinstance(data, six.text_type):
             data = data.encode('utf-8')
@@ -89,7 +91,7 @@ class Client(object):
 
         @param job_id: Id of crowdflower job to get
         @type job_id: int
-        @return: Crowdflower job
+        @returns: Crowdflower job
         @rtype: crowdflower.job.Job
         """
         return Job(self, self._call('jobs/{}.json'.format(job_id)))
@@ -113,7 +115,7 @@ class Client(object):
         @type data: collections.abc.Iterable
         @param job_id: Id of a crowdflower job to update (optional)
         @type job_id: int
-        @return: crowdflower.job.Job instance
+        @returns: crowdflower.job.Job instance
         @rtype: crowdflower.job.Job
         """
         return self._upload_job(
@@ -145,7 +147,7 @@ class Client(object):
         @type type_: str
         @param job_id: Id of a crowdflower job to update (optional)
         @type job_id: int
-        @return: crowdflower.job.Job instance
+        @returns: crowdflower.job.Job instance
         @rtype: crowdflower.job.Job
         """
         # Default to expecting a file like object, which caller must handle

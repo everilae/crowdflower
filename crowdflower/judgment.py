@@ -31,14 +31,13 @@ class JudgmentAggregate(Base):
         self._job = job
         super(JudgmentAggregate, self).__init__(data)
 
-    def get_aggregates(self):
+    def get_fields(self):
         """
         Get full aggregated field value dictionaries as a dictionary.
-        @return: dictionary of field, value items
+        @returns: dictionary of field, value items
         @rtype: dict
         """
-        return {k: v for k, v in self._json.items()
-                if isinstance(v, dict)}
+        return {field: self._json[field] for field in self._job.fields.keys()}
 
     def get_aggregate(self, field):
         """
@@ -52,7 +51,7 @@ class JudgmentAggregate(Base):
         Full results for field ``field``
 
         @param field: Field name
-        @return: Results for field
+        @returns: Results for field
         """
         return self._json[field]['res']
 
