@@ -39,6 +39,6 @@ class Base(object):
             item
         ))
 
-    def update(self, data):
+    def _update(self, data):
         self._json.update(data)
         self._changes = {}
