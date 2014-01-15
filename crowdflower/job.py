@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
+from .base import Base
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
-class Job(object):
+class Job(Base):
     """
     CrowdFlower Job.
     """
 
-    _RO_ATTRS = frozenset("""
+    RO_ATTRS = frozenset("""
         completed
         completed_at
         created_at
@@ -21,7 +22,7 @@ class Job(object):
         updated_at
         """.strip().split())
 
-    _RW_ATTRS = frozenset("""
+    RW_ATTRS = frozenset("""
         auto_order
         auto_order_threshold
         auto_order_timeout
@@ -59,55 +60,25 @@ class Job(object):
         @type data: dict
         """
         self._client = client
-        self._json = data
-        self._changes = {}
-
-    def __setattr__(self, key, value):
-        if key in self._RO_ATTRS:
-            raise AttributeError(
-                "cannot change read only attribute '{}'".format(key))
-
-        elif key in self._RW_ATTRS:
-            self._changes[key] = value
-
-        else:
-            super(Job, self).__setattr__(key, value)
-
-    def __getattr__(self, item):
-        if item in self._RO_ATTRS:
-            return self._json[item]
-
-        elif item in self._RW_ATTRS:
-            return self._changes.get(item, self._json[item])
-
-        raise AttributeError("'{}' object has no attribute '{}'".format(
-            self.__class__.__name__,
-            item
-        ))
+        super(Job, self).__init__(data)
 
     def update(self):
         """
-        Send updates to CrowdFlower. Note that both 'instructions' and 'cml'
-        attributes must be set or provided and valid for any changes to really
-        persist.
+        Send updates to CrowdFlower. Note that 'title', 'instructions' and
+        'cml' attributes must be set or provided and valid for any changes
+        to really persist.
 
         The API will happily return a "valid" response when sent only the
         'instructions', but nothing will change on the server side without
-        both. The caller is responsible for providing valid CML.
+        all three. The caller is responsible for providing valid CML.
         """
-        cml = self._changes.get('cml', self._json['cml'])
-        instructions = self._changes.get('instructions',
-                                         self._json['instructions'])
+        for attr in {'title', 'instructions', 'cml'}:
+            if not self._changes.get(attr, self._json[attr]):
+                raise RuntimeError(
+                    "missing required attribute '{}'".format(attr))
 
-        # CrowdFlower API will happily return a "valid" response, if
-        # job[instructions] POST data is provided, but will not persist any
-        # changes, if both cml and instructions are not provided and valid,
-        # or already set on the job.
-        if not (cml and instructions):
-            raise RuntimeError("'instructions' and 'cml' required")
-
-        self._json.update(self._client.update_job(self.id, self._changes))
-        self._changes = {}
+        super(Job, self).update(self._client.update_job(self.id,
+                                                        self._changes))
 
     def upload(self, data):
         """
@@ -148,5 +119,3 @@ class Job(object):
         will be invalid after deletion and must not be used anymore.
         """
         self._client.delete_job(self.id)
-        self._json = None
-        self._changes = None
