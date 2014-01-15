@@ -54,10 +54,11 @@ class Job(Base):
     def __init__(self, client, data):
         """
         Initialize from given JSON dictionary.
-        @param client: Client instance that created this job instance
-        @type client: crowdflower.client.Client
-        @param data: Job JSON dictionary
-        @type data: dict
+
+        :param client: Client instance that created this job instance
+        :type client: crowdflower.client.Client
+        :param data: Job JSON dictionary
+        :type data: dict
         """
         self._client = client
         super(Job, self).__init__(data)
@@ -84,8 +85,8 @@ class Job(Base):
         """
         Upload given data as JSON.
 
-        @param data: Iterable of JSON serializable objects
-        @type data: collections.abc.Iterable
+        :param data: Iterable of JSON serializable objects
+        :type data: collections.abc.Iterable
         """
         self._client.upload_job(data, self.id)
 
@@ -105,11 +106,11 @@ class Job(Base):
         If type information is not given and guessing did not work,
         will raise a ValueError.
 
-        @param file: A file like object or a filename string, contains UTF-8
+        :param file: A file like object or a filename string, contains UTF-8
                      encoded data
-        @type file: str or file
-        @param type_: Explicit type, required for file like objects
-        @type type_: str
+        :type file: str or file
+        :param type_: Explicit type, required for file like objects
+        :type type_: str
         """
         self._client.upload_job_file(file, type_, self.id)
 

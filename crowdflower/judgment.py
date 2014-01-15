@@ -20,12 +20,13 @@ class JudgmentAggregate(Base):
     def __init__(self, client, job, data):
         """
         Initialize from given JSON dictionary.
-        @param client: Client instance that created this job instance
-        @type client: crowdflower.client.Client
-        @param job: Job instance that this Judgment belongs to
-        @type job: crowdflower.job.Job
-        @param data: Job JSON dictionary
-        @type data: dict
+
+        :param client: Client instance that created this job instance
+        :type client: crowdflower.client.Client
+        :param job: Job instance that this Judgment belongs to
+        :type job: crowdflower.job.Job
+        :param data: Job JSON dictionary
+        :type data: dict
         """
         self._client = client
         self._job = job
@@ -34,8 +35,9 @@ class JudgmentAggregate(Base):
     def get_fields(self):
         """
         Get full aggregated field value dictionaries as a dictionary.
-        @returns: dictionary of field, value items
-        @rtype: dict
+
+        :returns: dictionary of field, value items
+        :rtype: dict
         """
         return {field: self._json[field] for field in self._job.fields.keys()}
 
@@ -50,8 +52,8 @@ class JudgmentAggregate(Base):
         """
         Full results for field ``field``
 
-        @param field: Field name
-        @returns: Results for field
+        :param field: Field name
+        :returns: Results for field
         """
         return self._json[field]['res']
 
@@ -90,12 +92,13 @@ class Judgment(Base):
     def __init__(self, client, job, data):
         """
         Initialize from given JSON dictionary.
-        @param client: Client instance that created this job instance
-        @type client: crowdflower.client.Client
-        @param job: Job instance that this Judgment belongs to
-        @type job: crowdflower.job.Job
-        @param data: Job JSON dictionary
-        @type data: dict
+
+        :param client: Client instance that created this job instance
+        :type client: crowdflower.client.Client
+        :param job: Job instance that this Judgment belongs to
+        :type job: crowdflower.job.Job
+        :param data: Job JSON dictionary
+        :type data: dict
         """
         self._client = client
         self._job = job

@@ -27,7 +27,7 @@ class Client(object):
 
     def __init__(self, key):
         """
-        @param key: CrowdFlower API key. Required for authentication.
+        :param key: CrowdFlower API key. Required for authentication.
         """
         self._key = key
 
@@ -36,16 +36,16 @@ class Client(object):
         Data may be str (unicode) or bytes. Unicode strings will be
         encoded to UTF-8 bytes.
 
-        @param data: Byte data for POST
-        @type data: str, bytes or dict
-        @param headers: Additional headers
-        @type headers: dict
-        @param query: Additional query parameters
-        @type query: dict
-        @param method: GET, POST, PUT or DELETE
-        @type method: str
-        @returns: JSON dictionary
-        @rtype: dict
+        :param data: Byte data for POST
+        :type data: str, bytes or dict
+        :param headers: Additional headers
+        :type headers: dict
+        :param query: Additional query parameters
+        :type query: dict
+        :param method: GET, POST, PUT or DELETE
+        :type method: str
+        :returns: JSON dictionary
+        :rtype: dict
         """
         if data and isinstance(data, six.text_type):
             data = data.encode('utf-8')
@@ -75,10 +75,10 @@ class Client(object):
         """
         Update Job <job_id> with ``attrs``
 
-        @param job_id: Id of crowdflower job to update
-        @type job_id: int
-        @param attrs: JSON dictionary of attributes to update
-        @type attrs: dict
+        :param job_id: Id of crowdflower job to update
+        :type job_id: int
+        :param attrs: JSON dictionary of attributes to update
+        :type attrs: dict
         """
         return self._call(
             path='jobs/{}.json'.format(job_id),
@@ -89,10 +89,10 @@ class Client(object):
         """
         Get Job <job_id>
 
-        @param job_id: Id of crowdflower job to get
-        @type job_id: int
-        @returns: Crowdflower job
-        @rtype: crowdflower.job.Job
+        :param job_id: Id of crowdflower job to get
+        :type job_id: int
+        :returns: Crowdflower job
+        :rtype: crowdflower.job.Job
         """
         return Job(self, self._call('jobs/{}.json'.format(job_id)))
 
@@ -111,12 +111,12 @@ class Client(object):
         """
         Upload given data as JSON.
 
-        @param data: Iterable of JSON serializable objects
-        @type data: collections.abc.Iterable
-        @param job_id: Id of a crowdflower job to update (optional)
-        @type job_id: int
-        @returns: crowdflower.job.Job instance
-        @rtype: crowdflower.job.Job
+        :param data: Iterable of JSON serializable objects
+        :type data: collections.abc.Iterable
+        :param job_id: Id of a crowdflower job to update (optional)
+        :type job_id: int
+        :returns: crowdflower.job.Job instance
+        :rtype: crowdflower.job.Job
         """
         return self._upload_job(
             '\n'.join(map(json.dumps, data)).encode('utf-8'),
@@ -140,15 +140,15 @@ class Client(object):
         If type information is not given and guessing did not work,
         will raise a ValueError.
 
-        @param file: A file like object or a filename string, contains UTF-8
+        :param file: A file like object or a filename string, contains UTF-8
                      encoded data
-        @type file: str or file
-        @param type_: Explicit type, required for file like objects
-        @type type_: str
-        @param job_id: Id of a crowdflower job to update (optional)
-        @type job_id: int
-        @returns: crowdflower.job.Job instance
-        @rtype: crowdflower.job.Job
+        :type file: str or file
+        :param type_: Explicit type, required for file like objects
+        :type type_: str
+        :param job_id: Id of a crowdflower job to update (optional)
+        :type job_id: int
+        :returns: crowdflower.job.Job instance
+        :rtype: crowdflower.job.Job
         """
         # Default to expecting a file like object, which caller must handle
         context = _nopcontext
