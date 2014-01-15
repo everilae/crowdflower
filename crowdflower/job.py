@@ -71,45 +71,45 @@ class Job(object):
     """
 
     _RO_ATTRS = frozenset("""
-    completed
-    completed_at
-    created_at
-    gold
-    golds_count
-    id
-    judgments_count
-    units_count
-    updated_at
-    """.strip().split())
+        completed
+        completed_at
+        created_at
+        gold
+        golds_count
+        id
+        judgments_count
+        units_count
+        updated_at
+        """.strip().split())
 
     _RW_ATTRS = frozenset("""
-    auto_order
-    auto_order_threshold
-    auto_order_timeout
-    cml
-    cml_fields
-    confidence_fields
-    css
-    custom_key
-    excluded_countries
-    gold_per_assignment
-    included_countries
-    instructions
-    js
-    judgments_per_unit
-    language
-    max_judgments_per_unit
-    max_judgments_per_contributor
-    min_unit_confidence
-    options
-    pages_per_assignment
-    problem
-    send_judgments_webhook
-    state
-    title
-    units_per_assignment
-    webhook_uri
-    """.strip().split())
+        auto_order
+        auto_order_threshold
+        auto_order_timeout
+        cml
+        cml_fields
+        confidence_fields
+        css
+        custom_key
+        excluded_countries
+        gold_per_assignment
+        included_countries
+        instructions
+        js
+        judgments_per_unit
+        language
+        max_judgments_per_unit
+        max_judgments_per_contributor
+        min_unit_confidence
+        options
+        pages_per_assignment
+        problem
+        send_judgments_webhook
+        state
+        title
+        units_per_assignment
+        webhook_uri
+        """.strip().split())
 
     def __init__(self, client, data):
         """
@@ -121,17 +121,51 @@ class Job(object):
         """
         self._client = client
         self._json = data
+        self._changes = {}
 
     def __setattr__(self, key, value):
-        if key in self._RW_ATTRS:
-            self._json[key] = value
-            self._client.update_job()
+        if key in self._RO_ATTRS:
+            raise AttributeError(
+                "cannot change read only attribute '{}'".format(key))
+
+        elif key in self._RW_ATTRS:
+            self._changes[key] = value
+
+        else:
+            super(Job, self).__setattr__(key, value)
 
     def __getattr__(self, item):
-        if item in self._RO_ATTRS or item in self._RW_ATTRS:
+        if item in self._RO_ATTRS:
             return self._json[item]
+
+        elif item in self._RW_ATTRS:
+            return self._changes.get(item, self._json[item])
 
         raise AttributeError("'{}' object has no attribute '{}'".format(
             self.__class__.__name__,
             item
         ))
+
+    def update(self):
+        """
+        Send updates to CrowdFlower. Note that both 'instructions' and 'cml'
+        attributes must be set or provided and valid for any changes to really
+        persist.
+
+        The API will happily return a "valid" response when sent only the
+        'instructions', but nothing will change on the server side without
+        both. The caller is responsible for providing valid CML.
+        """
+        cml = self._changes.get('cml', self._json['cml'])
+        instructions = self._changes.get('instructions',
+                                         self._json['instructions'])
+
+        # CrowdFlower API will happily return a "valid" response, if
+        # job[instructions] POST data is provided, but will not persist any
+        # changes, if both cml and instructions are not provided and valid,
+        # or already set on the job.
+        if not (cml and instructions):
+            raise RuntimeError("'instructions' and 'cml' required")
+
+        self._json.update(self._client.update_job(self.id, self._changes))
+        self._changes = {}
