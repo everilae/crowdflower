@@ -98,6 +98,48 @@ class Client(object):
         return {fmt.format(']['.join(p)): v for p, v in
                 self._recursive_items(attrs)}
 
+    def create_job(self, attrs):
+        """
+        Create new job with ``attrs``, where attributes of most interest are:
+
+        - title
+        - instructions
+        - cml
+        - js
+        - css
+
+        Other R/W attributes:
+
+        - auto_order
+        - auto_order_threshold
+        - auto_order_timeout
+        - fields
+        - confidence_fields
+        - custom_key
+        - excluded_countries
+        - gold_per_assignment
+        - included_countries
+        - judgments_per_unit
+        - language
+        - max_judgments_per_unit
+        - max_judgments_per_contributor
+        - min_unit_confidence
+        - options
+        - pages_per_assignment
+        - problem
+        - send_judgments_webhook
+        - state
+        - units_per_assignment
+        - webhook_uri
+
+        :param attrs: JSON dictionary of attributes for new job
+        :type attrs: dict
+        :returns: Newly created Job
+        :rtype: crowdflower.job.Job
+        """
+        return Job(self,self._call('jobs.json',
+                                    self._make_cf_attrs('job', attrs)))
+
     def update_job(self, job_id, attrs):
         """
         Update Job ``job_id`` with ``attrs``
