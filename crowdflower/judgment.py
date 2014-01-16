@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Base
+from .base import Base, RoAttribute
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -17,18 +17,10 @@ class JudgmentAggregate(Base):
     :type data: dict
     """
 
-    #: Read only attributes. These have the underscore prefix due to
-    #: CrowdFlower sending them as such.
-    #:
-    #: .. todo::
-    #:
-    #:    Remove underscore prefix from attributes.
-    RO_ATTRS = frozenset("""
-        _agreement
-        _ids
-        _state
-        _updated_at
-        """.strip().split())
+    _agreement = RoAttribute()
+    _ids = RoAttribute()
+    _state = RoAttribute()
+    _updated_at = RoAttribute()
 
     def __init__(self, client, job, data):
         self._client = client

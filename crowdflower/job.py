@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Base
+from .base import Base, Attribute, RoAttribute
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -15,48 +15,42 @@ class Job(Base):
     :type data: dict
     """
 
-    #: Read only attributes
-    RO_ATTRS = frozenset("""
-        completed
-        completed_at
-        created_at
-        gold
-        golds_count
-        id
-        judgments_count
-        units_count
-        updated_at
-        """.strip().split())
+    completed = RoAttribute()
+    completed_at = RoAttribute()
+    created_at = RoAttribute()
+    gold = RoAttribute()
+    golds_count = RoAttribute()
+    id = RoAttribute()
+    judgments_count = RoAttribute()
+    units_count = RoAttribute()
+    updated_at = RoAttribute()
 
-    #: Read/write attributes
-    RW_ATTRS = frozenset("""
-        auto_order
-        auto_order_threshold
-        auto_order_timeout
-        cml
-        fields
-        confidence_fields
-        css
-        custom_key
-        excluded_countries
-        gold_per_assignment
-        included_countries
-        instructions
-        js
-        judgments_per_unit
-        language
-        max_judgments_per_unit
-        max_judgments_per_contributor
-        min_unit_confidence
-        options
-        pages_per_assignment
-        problem
-        send_judgments_webhook
-        state
-        title
-        units_per_assignment
-        webhook_uri
-        """.strip().split())
+    auto_order = Attribute()
+    auto_order_threshold = Attribute()
+    auto_order_timeout = Attribute()
+    cml = Attribute()
+    fields = Attribute()
+    confidence_fields = Attribute()
+    css = Attribute()
+    custom_key = Attribute()
+    excluded_countries = Attribute()
+    gold_per_assignment = Attribute()
+    included_countries = Attribute()
+    instructions = Attribute()
+    js = Attribute()
+    judgments_per_unit = Attribute()
+    language = Attribute()
+    max_judgments_per_unit = Attribute()
+    max_judgments_per_contributor = Attribute()
+    min_unit_confidence = Attribute()
+    options = Attribute()
+    pages_per_assignment = Attribute()
+    problem = Attribute()
+    send_judgments_webhook = Attribute()
+    state = Attribute()
+    title = Attribute()
+    units_per_assignment = Attribute()
+    webhook_uri = Attribute()
 
     def __init__(self, client, data):
         self._client = client
