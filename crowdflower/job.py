@@ -73,7 +73,8 @@ class Job(Base):
         :raises: RuntimeError
         """
         for attr in {'title', 'instructions', 'cml'}:
-            if not self._changes.get(attr, self._json[attr]):
+            # Does a magic lookup to changes first, then the original json
+            if not getattr(self, attr):
                 raise RuntimeError(
                     "missing required attribute '{}'".format(attr))
 
