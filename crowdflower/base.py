@@ -49,6 +49,21 @@ class _AttributeMeta(type):
             value.name = key
 
 
+#
+# Workaround for py2 vs. py3 metaclass syntax differences.
+#
+# Python2:
+#
+# class Foo(object):
+#     __metaclass__ = MetaClass
+#     ...
+#
+# Python3:
+#
+# class Foo(metaclass=MetaClass):
+#     ...
+#
+# Both python2 and python3:
 _Base = _AttributeMeta('_Base', (object,), {})
 
 
