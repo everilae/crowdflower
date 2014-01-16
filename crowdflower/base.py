@@ -6,8 +6,8 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 class Attribute(object):
 
-    def __init__(self, get_attr='_json', set_attr='_changes'):
-        self.name = None
+    def __init__(self, name=None, get_attr='_json', set_attr='_changes'):
+        self.name = name
         self.get_attr = get_attr
         self.set_attr = set_attr
 
@@ -38,11 +38,15 @@ class _AttributeMeta(type):
     """
 
     def __init__(cls, what, bases, dict_):
+        for k, v in dict_.items():
+            if isinstance(v, Attribute) and v.name is None:
+                v.name = k
+
         super(_AttributeMeta, cls).__init__(what, bases, dict_)
 
-        for name, attr in dict_.items():
-            if isinstance(attr, Attribute):
-                attr.name = name
+    def __setattr__(cls, key, value):
+        if isinstance(value, Attribute) and value.name is None:
+            value.name = key
 
 
 _Base = _AttributeMeta('_Base', (object,), {})
