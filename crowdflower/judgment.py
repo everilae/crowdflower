@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Base, RoAttribute
+from .base import Base, Attribute, RoAttribute
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -65,33 +65,27 @@ class Judgment(Base):
     :type data: dict
     """
 
-    #: Read only attributes
-    RO_ATTRS = frozenset("""
-        started_at
-        created_at
-        job_id
-        contributor_id
-        unit_id
-        judgment
-        external_type
-        rejected
-        ip
-        id
-        data
-        """.strip().split())
+    started_at = RoAttribute()
+    created_at = RoAttribute()
+    job_id = RoAttribute()
+    contributor_id = RoAttribute()
+    unit_id = RoAttribute()
+    judgment = RoAttribute()
+    external_type = RoAttribute()
+    rejected = RoAttribute()
+    ip = RoAttribute()
+    id = RoAttribute()
+    data = RoAttribute()
 
-    #: Read/write attributes
-    RW_ATTRS = frozenset("""
-        webhook_sent_at
-        reviewed
-        missed
-        tainted
-        country
-        region
-        city
-        golden
-        unit_state
-        """.strip().split())
+    webhook_sent_at = Attribute()
+    reviewed = Attribute()
+    missed = Attribute()
+    tainted = Attribute()
+    country = Attribute()
+    region = Attribute()
+    city = Attribute()
+    golden = Attribute()
+    unit_state = Attribute()
 
     def __init__(self, client, job, data):
         self._client = client
