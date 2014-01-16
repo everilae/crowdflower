@@ -14,26 +14,10 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: crowdflower
-
-.. automodule:: crowdflower.client
-
-.. autoclass:: Client
-   :members:
-
-.. automodule:: crowdflower.job
-
-.. autoclass:: Job
-   :members:
-
-.. automodule:: crowdflower.judgment
-
-.. autoclass:: JudgmentAggregate
-   :members:
-
-.. autoclass:: Judgment
-   :members:
-
+   client
+   job
+   judgment
+   unit
 
 Indices and tables
 ==================
