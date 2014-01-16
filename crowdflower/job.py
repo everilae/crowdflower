@@ -64,15 +64,18 @@ class Job(Base):
 
     def update(self):
         """
-        Send updates to CrowdFlower. Note that 'title', 'instructions' and
-        'cml' attributes must be set or provided and valid for any changes
-        to really persist.
+        Send updates made to this instance to CrowdFlower. Note that 'title',
+        'instructions' and 'cml' attributes must exist (either in the update or
+        in the job already) for any changes to really persist, and so this
+        method raises a RuntimeError, if any of them is missing.
 
         .. warning::
 
            The API will happily return a "valid" response when sent only the
            'instructions', but nothing will change on the server side without
            all three. The caller is responsible for providing valid CML.
+
+        :raises: RuntimeError
         """
         for attr in {'title', 'instructions', 'cml'}:
             if not self._changes.get(attr, self._json[attr]):
