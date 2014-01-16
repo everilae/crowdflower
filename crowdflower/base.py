@@ -57,6 +57,6 @@ class Base(_Base):
         self._json = data
         self._changes = {}
 
-    def _update(self, data):
-        self._json.update(data)
+    def _update(self, updater):
+        self._json.update(updater(self._changes))
         self._changes = {}

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
 from .base import Base, Attribute, RoAttribute
+from functools import partial
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -76,8 +77,9 @@ class Job(Base):
                 raise RuntimeError(
                     "missing required attribute '{}'".format(attr))
 
-        super(Job, self)._update(self._client.update_job(
-            self.id, self._changes))
+        # calls Base._update, which calls the provided method with a
+        # changes dict
+        self._update(partial(self._client.update_job, self.id))
 
     def upload(self, data):
         """
