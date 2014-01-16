@@ -67,8 +67,36 @@ class Client(object):
 
         return resp_json
 
+    def _recursive_items(self, dict_, path=()):
+        """
+        Recursive generator for producing a flat list from nested dictionaries.
+        Generates potentially lot of tuples for paths, but fix if it turns out
+        broken.
+
+        Don't provide too deeply nested dicts, as you will hit the python
+        recursion level limit.
+        """
+        for k, v in dict_.items():
+            if isinstance(v, dict):
+                # If this was python3.3 only, could use yield from :(.
+                # Path is provided in subkey, no need to concatenate.
+                for sk, sv in self._recursive_items(v, path + (k,)):
+                    yield sk, sv
+
+            else:
+                yield path + (k,), v
+
     def _make_cf_attrs(self, type_, attrs):
-        return {'{}[{}]'.format(type_, k): v for k, v in attrs.items()}
+        """
+        .. code::
+
+           >>> client = Client('fakekey')
+           >>> client._make_cf_attrs('job', {'a': 'foo', 'options': {'b': 1, 'c': 2}})
+           {'job[a]': 'foo', 'job[options][b]': 1, 'job[options][c]': 2}
+        """
+        fmt = '{}[{{}}]'.format(type_)
+        return {fmt.format(']['.join(p)): v for p, v in
+                self._recursive_items(attrs)}
 
     def update_job(self, job_id, attrs):
         """
