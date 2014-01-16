@@ -6,15 +6,22 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 class Attribute(object):
 
+    def __init__(self, get_attr='_json', set_attr='_changes'):
+        self.name = None
+        self.get_attr = get_attr
+        self.set_attr = set_attr
+
     def __get__(self, instance, owner):
         if instance is None:
             return self
 
-        return instance._changes.get(self.name,
-                                     instance._json[self.name])
+        # Look in the 'set_attr' (holding possible temporary changes) first,
+        # default to 'get_attr'.
+        return getattr(instance, self.set_attr).get(
+            self.name, getattr(instance, self.get_attr)[self.name])
 
     def __set__(self, instance, value):
-        instance._changes[self.name] = value
+        getattr(instance, self.set_attr)[self.name] = value
 
 
 class RoAttribute(Attribute):
@@ -25,8 +32,14 @@ class RoAttribute(Attribute):
 
 
 class _AttributeMeta(type):
+    """
+    An evil hack that inspects certain types of attributes and sets
+    values for them (names).
+    """
 
-    def __init__(self, name, bases, dict_):
+    def __init__(cls, what, bases, dict_):
+        super(_AttributeMeta, cls).__init__(what, bases, dict_)
+
         for name, attr in dict_.items():
             if isinstance(attr, Attribute):
                 attr.name = name

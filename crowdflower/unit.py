@@ -32,4 +32,7 @@ class Unit(Base):
     agreement = Attribute()
 
     def get_results(self):
+        """
+        Get unit results, if available.
+        """
         return self._json.get('results')
