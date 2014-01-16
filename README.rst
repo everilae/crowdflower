@@ -1,7 +1,10 @@
-crowdflower
+CrowdFlower
 ===========
 
-.. code::
+Examples
+--------
+
+.. code-block:: python
 
    >>> import crowdflower.client
    >>> client = crowdflower.client.Client('yourapikey')

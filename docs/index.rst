@@ -6,7 +6,10 @@
 Welcome to Python CrowdFlower API's documentation!
 ==================================================
 
-Contents:
+.. include:: ../README.rst
+
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
