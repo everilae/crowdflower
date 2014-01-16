@@ -48,6 +48,8 @@ class _AttributeMeta(type):
         if isinstance(value, Attribute) and value.name is None:
             value.name = key
 
+        super(_AttributeMeta, cls).__setattr__(key, value)
+
 
 #
 # Workaround for py2 vs. py3 metaclass syntax differences.
