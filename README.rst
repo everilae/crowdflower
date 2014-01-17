@@ -18,6 +18,12 @@ CrowdFlower
 .. [2] https://crowdflower.com/docs-api
    (Fri Jan 17 11:27:23 UTC 2014)
 
+Python API
+----------
+
+This python implementation is an unofficial project not related, endorsed or
+supported by CrowdFlower, Inc.
+
 Examples
 --------
 
