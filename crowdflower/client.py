@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
+from .unit import Unit
 
 from .job import Job
 from .judgment import JudgmentAggregate, Judgment
@@ -244,7 +245,7 @@ class Client(object):
 
     def get_judgmentaggregates(self, job):
         """
-        Get JudgmentAggregates for Job.
+        Get JudgmentAggregates for ``job``.
 
         .. note::
 
@@ -266,4 +267,13 @@ class Client(object):
             self, job,
             self._call('jobs/{}/judgments/{}.json'.format(job.id,
                                                           judgment_id))
+        )
+
+    def get_units(self, job):
+        """
+        Get Units for ``job``.
+        """
+        return list(
+            map(functools.partial(Unit, self, job),
+                self._call('jobs/{}/units.json'.format(job.id)))
         )
