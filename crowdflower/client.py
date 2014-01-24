@@ -277,3 +277,9 @@ class Client(object):
             map(functools.partial(Unit, self, job),
                 self._call('jobs/{}/units.json'.format(job.id)))
         )
+
+    def unit_from_json(self, data):
+        """
+        Create a new Unit instance from JSON ``data``.
+        """
+        return Unit(self, data)

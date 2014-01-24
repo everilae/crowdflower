@@ -23,6 +23,7 @@ class Unit(Base):
     created_at = RoAttribute()
     judgments_count = RoAttribute()
     id = RoAttribute()
+    unit_data = RoAttribute()
 
     job_id = Attribute()
     missed_count = Attribute()
