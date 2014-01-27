@@ -10,7 +10,9 @@ import json
 import mimetypes
 import requests
 import six
+import logging
 
+_log = logging.getLogger(__name__)
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
@@ -31,7 +33,12 @@ class Client(object):
     def __init__(self, key):
         self._key = key
 
-    def _call(self, path, data=None, headers=None, query={}, method='get'):
+    def _call(self, path,
+              data=None,
+              headers=None,
+              query={},
+              method='get',
+              files=None):
         """
         Data may be str (unicode) or bytes. Unicode strings will be
         encoded to UTF-8 bytes.
@@ -44,13 +51,15 @@ class Client(object):
         :type query: dict
         :param method: GET, POST, PUT or DELETE
         :type method: str
+        :param files: Files to upload
+        :type files: dict
         :returns: JSON dictionary
         :rtype: dict
         """
         if data and isinstance(data, six.text_type):
             data = data.encode('utf-8')
 
-        if method == 'get' and data:
+        if method == 'get' and (data or files):
             method = 'post'
 
         resp = requests.request(
@@ -58,8 +67,12 @@ class Client(object):
             url=self.API_URL.format(path=path),
             params=dict(key=self._key, **query),
             data=data,
-            headers=headers
+            headers=headers,
+            files=files
         )
+
+        _log.info(resp.text)
+
         resp.raise_for_status()
         resp_json = resp.json()
 
@@ -138,7 +151,7 @@ class Client(object):
         :returns: Newly created Job
         :rtype: crowdflower.job.Job
         """
-        return Job(self,self._call('jobs.json',
+        return Job(self, self._call('jobs.json',
                                     self._make_cf_attrs('job', attrs)))
 
     def update_job(self, job_id, attrs):
@@ -175,7 +188,7 @@ class Client(object):
         else:
             path = 'jobs/upload.json'
 
-        return Job(self, self._call(path, data, headers))
+        return Job(self, self._call(path, data=data, headers=headers))
 
     def upload_job(self, data, job_id=None):
         """
