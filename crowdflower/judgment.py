@@ -22,10 +22,9 @@ class JudgmentAggregate(Base):
     _state = RoAttribute()
     _updated_at = RoAttribute()
 
-    def __init__(self, client, job, data):
-        self._client = client
-        self._job = job
-        super(JudgmentAggregate, self).__init__(data)
+    def __init__(self, job, *args, **kwgs):
+        self.job = job
+        super(JudgmentAggregate, self).__init__(*args, **kwgs)
 
     def get_fields(self):
         """
@@ -34,7 +33,7 @@ class JudgmentAggregate(Base):
         :returns: dictionary of field, value items
         :rtype: dict
         """
-        return {field: self._json[field] for field in self._job.fields.keys()}
+        return {field: self._json[field] for field in self.job.fields.keys()}
 
     def get_aggregate(self, field):
         """
@@ -57,12 +56,12 @@ class Judgment(Base):
     """
     CrowdFlower Judgment.
 
-    :param client: Client instance that created this job instance
-    :type client: crowdflower.client.Client
     :param job: Job instance that this Judgment belongs to
     :type job: crowdflower.job.Job
     :param data: Job JSON dictionary
     :type data: dict
+    :param client: Client instance that created this job instance
+    :type client: crowdflower.client.Client
     """
 
     started_at = RoAttribute()
@@ -87,7 +86,6 @@ class Judgment(Base):
     golden = Attribute()
     unit_state = Attribute()
 
-    def __init__(self, client, job, data):
-        self._client = client
-        self._job = job
-        super(Judgment, self).__init__(data)
+    def __init__(self, job, data, client=None):
+        self.job = job
+        super(Judgment, self).__init__(data, client=client)

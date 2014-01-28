@@ -9,15 +9,17 @@ class Unit(Base):
     """
     CrowdFlower Unit.
 
-    :param client: CrowdFlower client
-    :type client: crowdflower.client.Client
+    :param job: Job instance owning this Unit
+    :type job: crowdflower.job.Job
     :param data: Unit JSON dictionary
     :type data: dict
+    :param client: CrowdFlower client
+    :type client: crowdflower.client.Client
     """
 
-    def __init__(self, client, data):
-        self._client = client
-        super(Unit, self).__init__(data)
+    def __init__(self, job, data, client=None):
+        self.job = job
+        super(Unit, self).__init__(data, client=client)
 
     updated_at = RoAttribute()
     created_at = RoAttribute()

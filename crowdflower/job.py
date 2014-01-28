@@ -10,10 +10,10 @@ class Job(Base):
     """
     CrowdFlower Job.
 
-    :param client: Client instance that created this job instance
-    :type client: crowdflower.client.Client
     :param data: Job JSON dictionary
     :type data: dict
+    :param client: Client instance that created this job instance
+    :type client: crowdflower.client.Client
     """
 
     completed = RoAttribute()
@@ -52,10 +52,6 @@ class Job(Base):
     title = Attribute()
     units_per_assignment = Attribute()
     webhook_uri = Attribute()
-
-    def __init__(self, client, data):
-        self._client = client
-        super(Job, self).__init__(data)
 
     def update(self):
         """

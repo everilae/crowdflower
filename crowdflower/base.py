@@ -72,12 +72,29 @@ _Base = _AttributeMeta('_Base', (object,), {})
 class Base(_Base):
     """
     CrowdFlower Base type.
+
+    :param data: JSON data
+    :type data: dict
+    :param client: CrowdFlower API client
+    :type client: crowdflower.client.Client
     """
 
-    def __init__(self, data):
+    def __init__(self, data, client=None):
+        self._client = client
         self._json = data
         self._changes = {}
 
     def _update(self, updater):
         self._json.update(updater(self._changes))
         self._changes = {}
+
+    @property
+    def client(self):
+        if not self._client:
+            raise AttributeError("instance not bound to a client")
+
+        return self._client
+
+    @client.setter
+    def client(self, value):
+        self._client = value

@@ -89,13 +89,13 @@ class Client(object):
             resp.raise_for_status()
 
         except requests.exceptions.RequestException as re:
-            msg = "API request failed"
+            msg = "API request failed: {}"
 
             if six.PY3:
-                raise ApiError(msg) from re
+                raise ApiError(msg.format(re)) from re
 
             else:
-                raise ApiError(msg, from_=re)
+                raise ApiError(msg.format(re), from_=re)
 
         resp_json = resp.json()
 
@@ -177,8 +177,8 @@ class Client(object):
         :returns: Newly created Job
         :rtype: crowdflower.job.Job
         """
-        return Job(self, self._call('jobs.json',
-                                    self._make_cf_attrs('job', attrs)))
+        return Job(self._call('jobs.json', self._make_cf_attrs('job', attrs)),
+                   client=self)
 
     def update_job(self, job_id, attrs):
         """
@@ -203,7 +203,7 @@ class Client(object):
         :returns: Crowdflower job
         :rtype: crowdflower.job.Job
         """
-        return Job(self, self._call('jobs/{}.json'.format(job_id)))
+        return Job(self._call('jobs/{}.json'.format(job_id)), client=self)
 
     def _upload_job(self, data, type_, job_id):
         headers = {'Content-Type': type_}
@@ -214,7 +214,7 @@ class Client(object):
         else:
             path = 'jobs/upload.json'
 
-        return Job(self, self._call(path, data=data, headers=headers))
+        return Job(self._call(path, data=data, headers=headers), client=self)
 
     def upload_job(self, data, job_id=None):
         """
@@ -294,7 +294,7 @@ class Client(object):
            so this code is very very likely to break in the future.
         """
         return list(
-            map(functools.partial(JudgmentAggregate, self, job),
+            map(functools.partial(JudgmentAggregate, job, client=self),
                 self._call('jobs/{}/judgments.json'.format(job.id)).values())
         )
 
@@ -303,9 +303,10 @@ class Client(object):
         Get Judgment ``judgment_id`` for ``job``.
         """
         return Judgment(
-            self, job,
+            job,
             self._call('jobs/{}/judgments/{}.json'.format(job.id,
-                                                          judgment_id))
+                                                          judgment_id)),
+            client=self
         )
 
     def get_units(self, job):
@@ -313,7 +314,7 @@ class Client(object):
         Get Units for ``job``.
         """
         return list(
-            map(functools.partial(Unit, self, job),
+            map(functools.partial(Unit, job, client=self),
                 self._call('jobs/{}/units.json'.format(job.id)))
         )
 
@@ -321,4 +322,5 @@ class Client(object):
         """
         Create a new Unit instance from JSON ``data``.
         """
-        return Unit(self, data)
+        return Unit(Job({'id': data['job_id']}, client=self), data,
+                    client=self)
