@@ -9,6 +9,7 @@ import functools
 import json
 import mimetypes
 import requests
+import requests.exceptions
 import six
 import logging
 
@@ -19,6 +20,19 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 @contextlib.contextmanager
 def _nopcontext(file):
     yield file
+
+
+class ApiError(Exception):
+    """
+    Base class for API errors.
+
+    :param from_: For python 2 exception chaining.
+    """
+
+    def __init__(self, *args, **kwgs):
+        #: Python 2 backwards compatible exception chain
+        self.from_ = kwgs.pop('from_', None)
+        super(ApiError, self).__init__(*args, **kwgs)
 
 
 class Client(object):
@@ -62,22 +76,34 @@ class Client(object):
         if method == 'get' and (data or files):
             method = 'post'
 
-        resp = requests.request(
-            method=method,
-            url=self.API_URL.format(path=path),
-            params=dict(key=self._key, **query),
-            data=data,
-            headers=headers,
-            files=files
-        )
+        try:
+            resp = requests.request(
+                method=method,
+                url=self.API_URL.format(path=path),
+                params=dict(key=self._key, **query),
+                data=data,
+                headers=headers,
+                files=files
+            )
+            # Raise an exception, if server responded with 50x or so
+            resp.raise_for_status()
 
-        _log.info(resp.text)
+        except requests.exceptions.RequestException as re:
+            msg = "API request failed"
 
-        resp.raise_for_status()
+            if six.PY3:
+                raise ApiError(msg) from re
+
+            else:
+                raise ApiError(msg, from_=re)
+
         resp_json = resp.json()
 
-        if 'error' in resp_json or 'errors' in resp_json:
-            raise RuntimeError(resp.text)
+        if 'error' in resp_json:
+            raise ApiError(resp_json['error'])
+
+        elif 'errors' in resp_json:
+            raise ApiError(*resp_json['errors'])
 
         return resp_json
 
