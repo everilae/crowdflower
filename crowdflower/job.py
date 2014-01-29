@@ -98,7 +98,6 @@ class Job(Base):
 
         If explicit ``type_`` is not provided and the ``file`` is a string
         containing a filename to open, will make a guess with mimetypes.
-        Returns a new Job instance related to the uploaded data.
 
         If type information is not given and guessing did not work,
         will raise a ValueError.
