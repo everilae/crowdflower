@@ -140,3 +140,20 @@ class Job(Base):
         :returns: crowdflower.job.Job
         """
         return self._client.copy_job(self.id, all_units, gold)
+
+    @property
+    def channels(self):
+        """
+        List of enabled channels for this job.
+        """
+        return self._client.get_job_channels(self.id).get(
+            'enabled_channels', [])
+
+    @channels.setter
+    def channels(self, channels):
+        """
+        Set enabled ``channels`` for this job.
+
+        :type channels: list
+        """
+        self._client.set_job_channels(self.id, channels)
