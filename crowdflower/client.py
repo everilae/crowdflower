@@ -358,7 +358,9 @@ class Client(object):
             }
 
         """
-        return self._call('jobs/{}/channels.json'.format(job_id))
+        # So... suddenly the API throws 404, if we add the '.json' at the
+        # end. Nice.
+        return self._call('jobs/{}/channels'.format(job_id))
 
     def set_job_channels(self, job_id, channels):
         """
@@ -368,6 +370,6 @@ class Client(object):
         :param channels: a list of channels to enable
         """
         # requests <3 <3 <3, handles multi value POST body like a charm
-        return self._call('jobs/{}/channels.json'.format(job_id),
+        return self._call('jobs/{}/channels'.format(job_id),
                           data={'channels[]': channels},
                           method='put')
