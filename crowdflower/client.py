@@ -128,7 +128,7 @@ class Client(object):
 
     def _make_cf_attrs(self, type_, attrs):
         """
-        .. code::
+        .. code-block:: python
 
            >>> client = Client('fakekey')
            >>> client._make_cf_attrs('job', {'a': 'foo', 'options': {'b': 1, 'c': 2}})
@@ -324,3 +324,50 @@ class Client(object):
         """
         return Unit(Job({'id': data['job_id']}, client=self), data,
                     client=self)
+
+    def copy_job(self, job_id, all_units, gold):
+        """
+        Copy Job ``job_id`` to a new job.
+
+        :param all_units: If true, all of this job's units will be copied to the new job.
+        :param gold: If true, only golden units will be copied to the new job.
+        :returns: crowdflower.job.Job
+        """
+        return Job(self._call('jobs/{}/copy.json'.format(job_id),
+                              dict(all_units=all_units, gold=gold)),
+                   client=self)
+
+    def get_job_channels(self, job_id):
+        """
+        Get available and enabled channels for ``job_id``.
+
+        .. code-block:: python
+
+            # A response JSON dictionary
+            {
+                "enabled_channels": [
+                    "amt"
+                ],
+                "available_channels": [
+                    "amt",
+                    "sama",
+                    "gambit",
+                    "mob",
+                    "iphone"
+                ]
+            }
+
+        """
+        return self._call('jobs/{}/channels.json'.format(job_id))
+
+    def set_job_channels(self, job_id, channels):
+        """
+        Enable ``channels`` for ``job_id``.
+
+        :param job_id: Id of job to set channels for
+        :param channels: a list of channels to enable
+        """
+        # requests <3 <3 <3, handles multi value POST body like a charm
+        return self._call('jobs/{}/channels.json'.format(job_id),
+                          data={'channels[]': channels},
+                          method='put')

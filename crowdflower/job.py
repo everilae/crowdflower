@@ -130,3 +130,13 @@ class Job(Base):
         Get single Judgment for this job.
         """
         return self._client.get_judgment(self, judgment_id)
+
+    def copy(self, all_units=False, gold=False):
+        """
+        Create a new job that is a copy of this job.
+
+        :param all_units: If true, all of this job's units will be copied to the new job.
+        :param gold: If true, only golden units will be copied to the new job.
+        :returns: crowdflower.job.Job
+        """
+        return self._client.copy_job(self.id, all_units, gold)
