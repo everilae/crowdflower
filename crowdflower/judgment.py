@@ -75,6 +75,7 @@ class Judgment(Base):
     ip = RoAttribute()
     id = RoAttribute()
     data = RoAttribute()
+    unit_data = RoAttribute()
 
     webhook_sent_at = Attribute()
     reviewed = Attribute()
