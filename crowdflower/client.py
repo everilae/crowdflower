@@ -177,7 +177,9 @@ class Client(object):
         :returns: Newly created Job
         :rtype: crowdflower.job.Job
         """
-        return Job(self._call('jobs.json', self._make_cf_attrs('job', attrs)),
+        return Job(self._call('jobs.json',
+                              self._make_cf_attrs('job', attrs),
+                              method='post'),
                    client=self)
 
     def update_job(self, job_id, attrs):
@@ -189,10 +191,9 @@ class Client(object):
         :param attrs: JSON dictionary of attributes to update
         :type attrs: dict
         """
-        return self._call(
-            path='jobs/{}.json'.format(job_id),
-            data=self._make_cf_attrs('job', attrs),
-            method='put')
+        return self._call('jobs/{}.json'.format(job_id),
+                          self._make_cf_attrs('job', attrs),
+                          method='put')
 
     def get_job(self, job_id):
         """
@@ -214,7 +215,8 @@ class Client(object):
         else:
             path = 'jobs/upload.json'
 
-        return Job(self._call(path, data=data, headers=headers), client=self)
+        return Job(self._call(path, data=data, headers=headers, method='post'),
+                   client=self)
 
     def upload_job(self, data, job_id=None):
         """
@@ -334,7 +336,8 @@ class Client(object):
         :returns: crowdflower.job.Job
         """
         return Job(self._call('jobs/{}/copy.json'.format(job_id),
-                              dict(all_units=all_units, gold=gold)),
+                              dict(all_units=all_units, gold=gold),
+                              method='post'),
                    client=self)
 
     def get_job_channels(self, job_id):
