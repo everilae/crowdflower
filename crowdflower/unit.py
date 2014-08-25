@@ -38,3 +38,17 @@ class Unit(Base):
         Get unit results, if available.
         """
         return self._json.get('results')
+
+    def get_aggregate(self, key, default=None):
+        """
+        Get aggregated result for ```key```, or return ```default```.
+
+        :param key: Name of result value.
+        :type key: str
+        :param default: Default value in case the given key is not found.
+        """
+        try:
+            return self._json['results'][key]['agg']
+
+        except KeyError:
+            return default
