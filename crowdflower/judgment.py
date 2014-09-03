@@ -51,6 +51,17 @@ class JudgmentAggregate(Base):
         """
         return self._json[field]['res']
 
+    @property
+    def judgments(self):
+        try:
+            return self._judgments
+
+        except AttributeError:
+            # noinspection PyAttributeOutsideInit
+            self._judgments = [self._client.get_judgment(self.job, id_)
+                               for id_ in self._ids]
+            return self._judgments
+
 
 class Judgment(Base):
     """

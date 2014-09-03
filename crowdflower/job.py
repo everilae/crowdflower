@@ -128,11 +128,17 @@ class Job(Base):
         self._client.delete_job(self.id)
 
     @property
-    def judgments(self):
+    def judgment_aggregates(self):
         """
         List of aggregated judgments for this job.
         """
-        return self._client.get_judgmentaggregates(self)
+        try:
+            return self._judgments_aggregates
+
+        except AttributeError:
+            # noinspection PyAttributeOutsideInit
+            self._judgments_aggregates = self._client.get_judgmentaggregates(self)
+            return self._judgments_aggregates
 
     def get_judgment(self, judgment_id):
         """
