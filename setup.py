@@ -12,7 +12,7 @@ except ImportError:
 
 setup(
     name="crowdflower",
-    version="0.0",
+    version="0.1.0",
     author=u"Ilja Everilä",
     author_email="ilja.everila@liilak.com",
     maintainer=u"Ilja Everilä",

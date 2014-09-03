@@ -24,6 +24,17 @@ Python API
 This python implementation is an unofficial project not related, endorsed or
 supported by CrowdFlower, Inc.
 
+Installation
+------------
+
+Install the latest version from GitHub:
+
+.. code-block:: bash
+
+    git clone https://github.com/everilae/crowdflower.git
+    cd crowdflower
+    python setup.py develop
+
 Examples
 --------
 
