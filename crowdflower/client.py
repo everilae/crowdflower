@@ -25,14 +25,7 @@ def _nopcontext(file):
 class ApiError(Exception):
     """
     Base class for API errors.
-
-    :param from_: For python 2 exception chaining.
     """
-
-    def __init__(self, *args, **kwgs):
-        #: Python 2 backwards compatible exception chain
-        self.from_ = kwgs.pop('from_', None)
-        super(ApiError, self).__init__(*args, **kwgs)
 
 
 class Client(object):
@@ -89,13 +82,7 @@ class Client(object):
             resp.raise_for_status()
 
         except requests.exceptions.RequestException as re:
-            msg = "API request failed: {}"
-
-            if six.PY3:
-                raise ApiError(msg.format(re)) from re
-
-            else:
-                raise ApiError(msg.format(re), from_=re)
+            raise ApiError("API request failed: {}".format(re))
 
         try:
             resp_json = resp.json()
