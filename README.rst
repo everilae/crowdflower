@@ -15,8 +15,8 @@ CrowdFlower
 .. [1] http://crowdflower.com/overview
    (Fri Jan 17 11:27:23 UTC 2014)
 
-.. [2] https://crowdflower.com/docs-api
-   (Fri Jan 17 11:27:23 UTC 2014)
+.. [2] http://success.crowdflower.com/customer/portal/articles/1288323-api-documentation
+   (Wed Sep 3 14:27:43 UTC 2014)
 
 Python API
 ----------

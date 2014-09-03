@@ -98,3 +98,9 @@ class Base(_Base):
     @client.setter
     def client(self, value):
         self._client = value
+
+    def __getitem__(self, item):
+        """
+        Allows job['item'] syntax for those preferring such things.
+        """
+        return self._changes.get(item, self._json[item])
