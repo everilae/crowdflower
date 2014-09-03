@@ -172,3 +172,16 @@ class Job(Base):
         :type channels: list
         """
         self._client.set_job_channels(self.id, channels)
+
+    @property
+    def units(self):
+        """
+        List of Units for this job.
+        """
+        try:
+            return self._units
+
+        except AttributeError:
+            # noinspection PyAttributeOutsideInit
+            self._units = self._client.get_units(self)
+            return self._units
