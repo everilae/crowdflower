@@ -53,6 +53,17 @@ class Job(Base):
     units_per_assignment = Attribute()
     webhook_uri = Attribute()
 
+    def _send_changes(self, changes):
+        """
+        Update Job instance changes to server and return resulting
+        reply JSON data.
+
+        Normally subclasses need not implement both '_send_changes' and
+        'update' methods, but Jobs require special data inspections that
+        must be documented clearly.
+        """
+        return self._client.update_job(self.id, changes)
+
     def update(self):
         """
         Send updates made to this instance to CrowdFlower. Note that 'title',
@@ -74,9 +85,8 @@ class Job(Base):
                 raise RuntimeError(
                     "missing required attribute '{}'".format(attr))
 
-        # calls Base._update, which calls the provided method with a
-        # changes dict
-        self._update(partial(self._client.update_job, self.id))
+        # calls Base.update, which calls _send_changes with changes dict
+        super(Job, self).update()
 
     def upload(self, data):
         """

@@ -84,8 +84,18 @@ class Base(_Base):
         self._json = data
         self._changes = {}
 
-    def _update(self, updater):
-        self._json.update(updater(self._changes))
+    def _send_changes(self, changes):
+        """
+        Sub classes must provide calls to send updates to server.
+        """
+        raise NotImplementedError(
+            "abstract method '_send_changes' not implemented")
+
+    def update(self):
+        """
+        Send changes to server and update instance with reply.
+        """
+        self._json.update(self._send_changes(self._changes))
         self._changes = {}
 
     @property
