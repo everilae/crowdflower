@@ -97,7 +97,15 @@ class Client(object):
             else:
                 raise ApiError(msg.format(re), from_=re)
 
-        resp_json = resp.json()
+        try:
+            resp_json = resp.json()
+
+        except Exception:
+            _log.exception(
+                "CrowdFlower API request failed: response %r, data %r",
+                resp.content, data
+            )
+            raise
 
         if 'error' in resp_json:
             raise ApiError(resp_json['error'])
