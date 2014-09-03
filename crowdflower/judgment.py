@@ -76,6 +76,9 @@ class Judgment(Base):
     id = RoAttribute()
     data = RoAttribute()
     unit_data = RoAttribute()
+    trust = RoAttribute()
+    worker_id = RoAttribute()
+    worker_trust = RoAttribute()
 
     webhook_sent_at = Attribute()
     reviewed = Attribute()
