@@ -35,5 +35,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    download_url='https://github.com/everilae/crowdflower/tarball/0.1.0',
 )
 
