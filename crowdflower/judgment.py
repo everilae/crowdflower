@@ -53,6 +53,9 @@ class JudgmentAggregate(Base):
 
     @property
     def judgments(self):
+        """
+        List of Judgment instances for this aggregate.
+        """
         try:
             return self._judgments
 
