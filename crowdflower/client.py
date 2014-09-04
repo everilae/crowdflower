@@ -296,7 +296,7 @@ class Client(object):
         """
         self._call('jobs/{}.json'.format(job_id), method='delete')
 
-    def get_judgmentaggregates(self, job):
+    def get_judgmentaggregates(self, job, page=1, limit=100):
         """
         Get JudgmentAggregates for ``job``.
 
@@ -309,7 +309,8 @@ class Client(object):
         """
         return list(
             map(functools.partial(JudgmentAggregate, job, client=self),
-                self._call('jobs/{}/judgments.json'.format(job.id)).values())
+                self._call('jobs/{}/judgments.json'.format(job.id),
+                           query=dict(page=page, limit=limit)).values())
         )
 
     def get_judgment(self, job, judgment_id):
