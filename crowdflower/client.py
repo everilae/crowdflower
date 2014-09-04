@@ -45,7 +45,8 @@ class Client(object):
               headers=None,
               query={},
               method='get',
-              files=None):
+              files=None,
+              as_json=True):
         """
         Data may be str (unicode) or bytes. Unicode strings will be
         encoded to UTF-8 bytes.
@@ -60,6 +61,8 @@ class Client(object):
         :type method: str
         :param files: Files to upload
         :type files: dict
+        :param as_json: Handle response as json, defaults to True
+        :type as_json: bool
         :returns: JSON dictionary
         :rtype: dict
         """
@@ -83,6 +86,10 @@ class Client(object):
 
         except requests.exceptions.RequestException as re:
             raise ApiError("API request failed: {}".format(re))
+
+        if not as_json:
+            # Caller knows what to do, hopefully
+            return resp
 
         try:
             resp_json = resp.json()
@@ -200,6 +207,16 @@ class Client(object):
         :rtype: crowdflower.job.Job
         """
         return Job(self._call('jobs/{}.json'.format(job_id)), client=self)
+
+    def get_jobs(self):
+        """
+        Get Jobs connected to this client and key.
+
+        :returns: an iterator of CrowdFlower jobs
+        :rtype: iter of crowdflower.job.Job
+        """
+        for data in self._call('jobs.json'):
+            yield Job(data, client=self)
 
     def _upload_job(self, data, type_, job_id):
         headers = {'Content-Type': type_}
