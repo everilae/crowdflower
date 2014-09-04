@@ -19,7 +19,7 @@ class JudgmentAggregate(Base):
 
     agreement = RoAttribute(name='_agreement')
     ids = RoAttribute(name='_ids')
-    state = RoAttribute(name='state')
+    state = RoAttribute(name='_state')
     updated_at = RoAttribute(name='_updated_at')
 
     def __init__(self, job, *args, **kwgs):
