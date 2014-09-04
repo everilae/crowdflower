@@ -16,6 +16,7 @@ class Job(Base):
     :type client: crowdflower.client.Client
     """
 
+    # RO attributes
     completed = RoAttribute()
     completed_at = RoAttribute()
     created_at = RoAttribute()
@@ -26,11 +27,14 @@ class Job(Base):
     units_count = RoAttribute()
     updated_at = RoAttribute()
 
+    # R/W attributes
     auto_order = Attribute()
     auto_order_threshold = Attribute()
     auto_order_timeout = Attribute()
     cml = Attribute()
+    #: dict
     fields = Attribute()
+    #: list
     confidence_fields = Attribute()
     css = Attribute()
     custom_key = Attribute()
@@ -44,6 +48,7 @@ class Job(Base):
     max_judgments_per_unit = Attribute()
     max_judgments_per_contributor = Attribute()
     min_unit_confidence = Attribute()
+    #: dict
     options = Attribute()
     pages_per_assignment = Attribute()
     problem = Attribute()
@@ -52,6 +57,26 @@ class Job(Base):
     title = Attribute()
     units_per_assignment = Attribute()
     webhook_uri = Attribute()
+
+    # Undocumented attributes, defaulted to RO
+    alias = RoAttribute()
+    copied_from = RoAttribute()
+    crowd_costs = RoAttribute()
+    design_verified = RoAttribute()
+    desired_requirements = RoAttribute()
+    expected_judgments_per_unit = RoAttribute()
+    minimum_account_age_seconds = RoAttribute()
+    #: dict
+    minimum_requirements = RoAttribute()
+    order_approved = RoAttribute()
+    project_number = RoAttribute()
+    public_data = RoAttribute()
+    require_worker_login = RoAttribute()
+    support_email = RoAttribute()
+    units_remain_finalized = RoAttribute()
+    variable_judgments_mode = RoAttribute()
+    worker_ui_remix = RoAttribute()
+    execution_mode = RoAttribute()
 
     def _send_changes(self, changes):
         """
