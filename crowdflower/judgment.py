@@ -17,10 +17,10 @@ class JudgmentAggregate(Base):
     :type data: dict
     """
 
-    _agreement = RoAttribute()
-    _ids = RoAttribute()
-    _state = RoAttribute()
-    _updated_at = RoAttribute()
+    agreement = RoAttribute(name='_agreement')
+    ids = RoAttribute(name='_ids')
+    state = RoAttribute(name='state')
+    updated_at = RoAttribute(name='_updated_at')
 
     def __init__(self, job, *args, **kwgs):
         self.job = job
