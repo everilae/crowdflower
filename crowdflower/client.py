@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
+from .order import Order
 from .unit import Unit
-
 from .job import Job
 from .judgment import JudgmentAggregate, Judgment
 import contextlib
@@ -401,19 +401,19 @@ class Client(object):
     _VALID_JOB_COMMANDS = frozenset([
         'pause', 'resume', 'cancel', 'ping', 'legend'])
 
-    def send_job_command(self, job_id, command):
+    def send_job_command(self, job, command):
         """
         Sends a ``command`` to given ``job_id``. Command
         must be one of ``{'pause', 'resume', 'cancel', 'ping', 'legend'}``.
 
-        :param job_id: Id of job to send command to
+        :param job: :py:class:`Job <crowdflower.job.Job>` to send command to
         :param command: The command word to send
         :raise: ValueError for invalid commands
         """
         if command not in self._VALID_JOB_COMMANDS:
             raise ValueError("invalid command for Job: '{}'".format(command))
 
-        return self._call('jobs/{}/{}.json'.format(job_id, command))
+        return self._call('jobs/{}/{}.json'.format(job.id, command))
 
     _VALID_WORKER_COMMANDS = frozenset([
         'bonus', 'notify', 'flag', 'deflag', 'reject'])
@@ -421,11 +421,10 @@ class Client(object):
     _SPECIAL_WORKER_COMMANDS = frozenset([
         'flag', 'deflag'])
 
-    def send_worker_command(self, worker_id, job_id, command, data,
+    def send_worker_command(self, worker, command, data,
                             method='post'):
         """
-        Sends a ``command`` to ``worker_id`` in ``job_id``
-        with optional ``query`` params and post ``data``.
+        Sends a ``command`` to ``worker`` with post ``data``.
 
         :raise: ValueError for invalid commands
         """
@@ -442,10 +441,34 @@ class Client(object):
 
         return self._call(
             path.format(
-                job_id=job_id,
-                worker_id=worker_id,
+                job_id=worker.job.id,
+                worker_id=worker.id,
                 command=command,
             ),
             method=method,
             data=data
+        )
+
+    def debit_order(self, job, units_count, channels):
+        """
+        Create a debit :py:class:`order <crowdflower.order.Order>` for
+        :py:class:`Job <crowdflower.job.Job>` with ``units_count``
+        at ``channels``.
+        """
+        return self._call(
+            'jobs/{}/orders.json'.format(job.id),
+            data={
+                'channels[]': channels,
+                'debit[units_count]': units_count
+            }
+        )
+
+    def get_order(self, job, order_id):
+        """
+        Get :py:class:`Order <crowdflower.order.Order>` by ``order_id`` for
+        :py:class:`Job <crowdflower.job.Job>` ``job``.
+        """
+        return Order(
+            job, client=self,
+            **self._call('jobs/{}/orders/{}.json'.format(job.id, order_id))
         )

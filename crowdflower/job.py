@@ -9,7 +9,7 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 def _command(f):
     """
-    Helper function for creating repetitive Job commands.
+    Helper function for creating repetitive :py:class:`Job <crowdflower.job.Job>` commands.
     """
     @wraps(f)
     def cmd(self):
@@ -27,7 +27,7 @@ class Job(Base):
 
     :param data: Job JSON dictionary
     :type data: dict
-    :param client: Client instance that created this job instance
+    :param client: :py:class:`Client <crowdflower.client.Client>` instance that created this job instance
     :type client: crowdflower.client.Client
     """
 
@@ -161,6 +161,9 @@ class Job(Base):
         If type information is not given and guessing did not work,
         will raise a ValueError.
 
+        Valid types are ``text/csv`` and ``application/json`` for ``.csv`` and
+        ``.json`` respectively.
+
         :param file: A file like object or a filename string, contains UTF-8
                      encoded data
         :type file: str or file
@@ -273,3 +276,10 @@ class Job(Base):
         Get Worker ``worker_id`` bound to this Job.
         """
         return Worker(self, client=self._client, id=worker_id)
+
+    def launch(self, units_count, channels=('on_demand',)):
+        """
+        Order Job with ``units_count`` at
+        ``channels``.
+        """
+        return self._client.debit_order(self, units_count, channels)

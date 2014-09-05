@@ -9,16 +9,19 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 def _command(f, method='post'):
     """
-    Helper function for handling Worker commands.
+    Helper function for handling :py:class:`Worker <crowdflower.worker.Worker>` commands.
     """
 
     @wraps(f)
     def cmd(self, *args, **kwgs):
+        """
+        Self is :py:class:`crowdflower.worker.Worker` instance.
+        """
         callargs = getcallargs(f, self, *args, **kwgs)
         del callargs['self']
 
         self._client.send_worker_command(
-            self.id, self.job.id,
+            self,
             f.__name__, callargs,
             method
         )
@@ -35,8 +38,12 @@ class Worker(JobResource):
     """
     CrowdFlower Worker.
 
-    :param job: Job instance owning this Unit
+    :param job: :py:class:`Job <crowdflower.job.Job>` instance owning this Worker
     :type job: crowdflower.job.Job
+    :param client: API :py:class:`client <crowdflower.client.Client>`
+    :type client: crowdflower.client.Client
+    :param data: Attributes
+    :type data: dict
     """
 
     id = RoAttribute()

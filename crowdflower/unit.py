@@ -12,12 +12,12 @@ class Unit(JobResource):
     Documentation for attributes can be found at
     http://success.crowdflower.com/customer/portal/articles/1621707 .
 
-    :param job: Job instance owning this Unit
+    :param job: :py:class:`Job <crowdflower.job.Job>` instance owning this Unit
     :type job: crowdflower.job.Job
+    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :type client: crowdflower.client.Client
     :param data: Unit JSON dictionary
     :type data: dict
-    :param client: CrowdFlower client
-    :type client: crowdflower.client.Client
     """
 
     created_at = RoAttribute()

@@ -119,6 +119,13 @@ class Base(_Base):
 class JobResource(Base):
     """
     Base class for all Job resources, like Worker, Judgment, Unit etc.
+
+    :param job: :py:class:`Job <crowdflower.job.Job>` instance owning this JobResource
+    :type job: crowdflower.job.Job
+    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :type client: crowdflower.client.Client
+    :param data: Unit JSON dictionary
+    :type data: dict
     """
 
     def __init__(self, job, client=None, **data):

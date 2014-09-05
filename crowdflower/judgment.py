@@ -9,10 +9,10 @@ class JudgmentAggregate(JobResource):
     """
     CrowdFlower Judgment aggregate.
 
-    :param client: Client instance that created this job instance
-    :type client: crowdflower.client.Client
-    :param job: Job instance that this Judgment belongs to
+    :param job: :py:class:`Job <crowdflower.job.Job>` instance that this Judgment belongs to
     :type job: crowdflower.job.Job
+    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :type client: crowdflower.client.Client
     :param data: Job JSON dictionary
     :type data: dict
     """
@@ -66,12 +66,12 @@ class Judgment(JobResource):
     """
     CrowdFlower Judgment.
 
-    :param job: Job instance that this Judgment belongs to
+    :param job: :py:class:`Job <crowdflower.job.Job>` instance that this Judgment belongs to
     :type job: crowdflower.job.Job
+    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :type client: crowdflower.client.Client
     :param data: Job JSON dictionary
     :type data: dict
-    :param client: Client instance that created this job instance
-    :type client: crowdflower.client.Client
     """
 
     started_at = RoAttribute()
