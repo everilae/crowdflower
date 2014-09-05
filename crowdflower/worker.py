@@ -70,12 +70,20 @@ class Worker(JobResource):
         the reason ``flag``. Existing Judgments will not be thrown
         away. If ``persist`` is se to ``True``, then the Worker is
         flagged out from all Jobs.
+
+        :param flag: Flag reason
+        :type flag: str
+        :param persist: If True, flag in all Jobs (default False)
+        :type persist: bool
         """
 
     @_put_command
     def deflag(self, deflag):
         """
         De-flags a worker with the reason ``deflag``.
+
+        :param deflag: De-flag reason
+        :type deflag: str
         """
 
     @_put_command
