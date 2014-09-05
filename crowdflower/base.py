@@ -114,3 +114,13 @@ class Base(_Base):
         Allows job['item'] syntax for those preferring such things.
         """
         return self._changes.get(item, self._json[item])
+
+
+class JobResource(Base):
+    """
+    Base class for all Job resources, like Worker, Judgment, Unit etc.
+    """
+
+    def __init__(self, job, client=None, **data):
+        super(JobResource, self).__init__(data, client=client)
+        self.job = job
