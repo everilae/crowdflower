@@ -48,6 +48,9 @@ class Worker(JobResource):
         """
         Notify a Worker contributor with the ``message``. The message
         appears in the workers dashboard.
+
+        :param message: Message to Worker
+        :type message: str
         """
 
     def flag(self, reason):
