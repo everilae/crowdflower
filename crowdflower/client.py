@@ -416,12 +416,20 @@ class Client(object):
         return self._call('jobs/{}/{}.json'.format(job_id, command))
 
     _VALID_WORKER_COMMANDS = frozenset([
-        'bonus', 'notify'])
+        'bonus', 'notify', 'flag', 'deflag', 'reject'])
 
-    def send_worker_command(self, worker_id, job_id, command, data, method='post'):
+    def send_worker_command(self, worker_id, job_id, command, data,
+                            method='post', headers={}):
         """
         Sends a ``command`` to ``worker_id`` in ``job_id``
         with optional ``query`` params and post ``data``.
+
+        .. note::
+
+           ``headers`` argument is provided in order to pass
+           ``{'Content-Length': 0}`` with PUT requests, because
+           that is the way the "official" ruby-crowdflower does it
+           for worker REST calls.
 
         :raise: ValueError for invalid commands
         """
@@ -436,18 +444,6 @@ class Client(object):
                 command
             ),
             method=method,
-            data=data
-        )
-
-    def flag_worker(self, worker_id, job_id, data):
-        """
-        Flags or de-flags a worker. The parameters in ``data`` control
-        whether to ``flag`` or ``deflag`` the worker.
-        """
-        return self._call(
-            'jobs/{}/workers/{}.json'.format(
-                job_id, worker_id
-            ),
-            method='put',
-            data=data
+            data=data,
+            headers=headers
         )

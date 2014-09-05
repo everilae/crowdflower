@@ -2,12 +2,12 @@
 from __future__ import print_function, division, absolute_import
 from inspect import getcallargs
 from .base import RoAttribute, JobResource
-from functools import wraps
+from functools import wraps, partial
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
-def _command(f):
+def _command(f, method='post', headers={}):
     """
     Helper function for handling Worker commands.
     """
@@ -18,10 +18,19 @@ def _command(f):
         del callargs['self']
 
         self._client.send_worker_command(
-            self.id, self.job.id, f.__name__, callargs,
+            self.id, self.job.id,
+            f.__name__, callargs,
+            method, headers
         )
 
     return cmd
+
+# TODO: check which is correct:
+# ruby-crowdflower Worker or
+# http://success.crowdflower.com/customer/portal/articles/1553902-api-request-examples#header_4
+_put_command = partial(_command,
+                       method='put',
+                       headers={'Content-Length': 0})
 
 
 class Worker(JobResource):
@@ -35,12 +44,15 @@ class Worker(JobResource):
     id = RoAttribute()
 
     @_command
-    def bonus(self, amount):
+    def bonus(self, amount, reason=None):
         """
-        Pay Worker a bonus
+        Pay Worker a bonus of ``amount`` cents. Optionally
+        include a message stating the ``reason`` of the bonus.
 
         :param amount: Amount in cents
         :type amount: int
+        :param reason: Include a message with the bonus
+        :type reason: str
         """
 
     @_command
@@ -53,14 +65,28 @@ class Worker(JobResource):
         :type message: str
         """
 
-    def flag(self, reason):
+    @_put_command
+    def flag(self, reason=None, persist=False):
         """
-        Flags a worker with the ``reason``.
+        Flags and prevents a Worker from completing the Job with
+        the ``reason``. Existing Judgments will not be thrown
+        away. If ``persist`` is se to ``True``, then the Worker is
+        flagged out from all Jobs.
         """
-        self._client.flag_worker(self.id, self.job.id, dict(flag=reason))
 
+    @_put_command
     def deflag(self, reason):
         """
         De-flags a worker with the ``reason``.
         """
-        self._client.flag_worker(self.id, self.job.id, dict(deflag=reason))
+
+    @_put_command
+    def reject(self):
+        """
+        Prevents Worker from completing Jobs and removes all Judgments.
+
+        Care should be taken since a finalized Job cannot collect new
+        Judgments to replace the missing data.
+
+        This feature is only available to Pro and Enterprise users.
+        """
