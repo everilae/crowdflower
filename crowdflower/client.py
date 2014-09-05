@@ -389,3 +389,20 @@ class Client(object):
         return self._call('jobs/{}/channels'.format(job_id),
                           data={'channels[]': channels},
                           method='put')
+
+    _VALID_JOB_COMMANDS = frozenset([
+        'pause', 'resume', 'cancel', 'ping', 'legend'])
+
+    def send_job_command(self, job_id, command):
+        """
+        Sends a ``command`` to given ``job_id``. Command
+        must be one of ``{'pause', 'resume', 'cancel', 'ping', 'legend'}.
+
+        :param job_id: Id of job to send command to
+        :param command: The command word to send
+        :raise: ValueError for invalid commands
+        """
+        if command not in self._VALID_JOB_COMMANDS:
+            raise ValueError("invalid command for Job: '{}'".format(command))
+
+        return self._call('jobs/{}/{}'.format(job_id, command))

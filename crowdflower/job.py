@@ -1,14 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
 from .base import Base, Attribute, RoAttribute
-from functools import partial
+from functools import partial, wraps
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
+
+
+def _command(f):
+    """
+    Helper function for creating repetitive Job commands.
+    """
+    @wraps(f)
+    def cmd(self):
+        return self._client.send_job_command(self.id, f.__name__)
+
+    return cmd
 
 
 class Job(Base):
     """
     CrowdFlower Job.
+
+    Documentation for attributes can be found at
+    http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes
 
     :param data: Job JSON dictionary
     :type data: dict
@@ -20,6 +34,7 @@ class Job(Base):
     completed = RoAttribute()
     completed_at = RoAttribute()
     created_at = RoAttribute()
+    crowd_costs = RoAttribute()
     gold = RoAttribute()
     golds_count = RoAttribute()
     id = RoAttribute()
@@ -28,10 +43,12 @@ class Job(Base):
     updated_at = RoAttribute()
 
     # R/W attributes
+    alias = Attribute()
     auto_order = Attribute()
     auto_order_threshold = Attribute()
     auto_order_timeout = Attribute()
     cml = Attribute()
+    design_verified = Attribute()
     #: dict
     fields = Attribute()
     #: list
@@ -39,6 +56,8 @@ class Job(Base):
     css = Attribute()
     custom_key = Attribute()
     excluded_countries = Attribute()
+    execution_mode = Attribute()
+    expected_judgments_per_unit = Attribute()
     gold_per_assignment = Attribute()
     included_countries = Attribute()
     instructions = Attribute()
@@ -48,35 +67,30 @@ class Job(Base):
     max_judgments_per_unit = Attribute()
     max_judgments_per_contributor = Attribute()
     min_unit_confidence = Attribute()
+    minimum_account_age_seconds = Attribute()
+    #: dict
+    minimum_requirements = Attribute()
     #: dict
     options = Attribute()
     pages_per_assignment = Attribute()
     problem = Attribute()
+    public_data = Attribute()
+    require_worker_login = Attribute()
     send_judgments_webhook = Attribute()
     state = Attribute()
+    support_email = Attribute()
     title = Attribute()
     units_per_assignment = Attribute()
+    units_remain_finalized = Attribute()
+    variable_judgments_mode = Attribute()
     webhook_uri = Attribute()
 
     # Undocumented attributes, defaulted to RO
-    alias = RoAttribute()
     copied_from = RoAttribute()
-    crowd_costs = RoAttribute()
-    design_verified = RoAttribute()
     desired_requirements = RoAttribute()
-    expected_judgments_per_unit = RoAttribute()
-    minimum_account_age_seconds = RoAttribute()
-    #: dict
-    minimum_requirements = RoAttribute()
     order_approved = RoAttribute()
     project_number = RoAttribute()
-    public_data = RoAttribute()
-    require_worker_login = RoAttribute()
-    support_email = RoAttribute()
-    units_remain_finalized = RoAttribute()
-    variable_judgments_mode = RoAttribute()
     worker_ui_remix = RoAttribute()
-    execution_mode = RoAttribute()
 
     def _send_changes(self, changes):
         """
@@ -96,11 +110,17 @@ class Job(Base):
         in the job already) for any changes to really persist, and so this
         method raises a RuntimeError, if any of them is missing.
 
+           "At minimum, your job must have a valid title, instructions, and one
+           required CML form element to be saved successfully." [1]_
+
         .. warning::
 
            The API will happily return a "valid" response when sent only the
            'instructions', but nothing will change on the server side without
            all three. The caller is responsible for providing valid CML.
+
+        .. [1] http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes#header_1
+           (Fri Sep 5 11:38:42 UTC 2014)
 
         :raises: RuntimeError
         """
@@ -210,3 +230,35 @@ class Job(Base):
             # noinspection PyAttributeOutsideInit
             self._units = self._client.get_units(self)
             return self._units
+
+    @_command
+    def pause(self):
+        """
+        Temporarily stop judgments from coming in. A paused Job may
+        ``resume``.
+        """
+
+    @_command
+    def resume(self):
+        """
+        Resume a Job from ``pause`` at any time.
+        """
+
+    @_command
+    def cancel(self):
+        """
+        Permanently ``cancel`` a Job, stopping any incoming judgments and
+        refunding your account for unreceived judgments.
+        """
+
+    @_command
+    def ping(self):
+        """
+        Check the status/progress of Job.
+        """
+
+    @_command
+    def legend(self):
+        """
+        Display generated keys submitted with the form.
+        """
