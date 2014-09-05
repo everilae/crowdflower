@@ -7,7 +7,7 @@ from functools import wraps, partial
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
-def _command(f, method='post', headers={}):
+def _command(f, method='post'):
     """
     Helper function for handling Worker commands.
     """
@@ -20,7 +20,7 @@ def _command(f, method='post', headers={}):
         self._client.send_worker_command(
             self.id, self.job.id,
             f.__name__, callargs,
-            method, headers
+            method
         )
 
     return cmd
@@ -28,9 +28,7 @@ def _command(f, method='post', headers={}):
 # TODO: check which is correct:
 # ruby-crowdflower Worker or
 # http://success.crowdflower.com/customer/portal/articles/1553902-api-request-examples#header_4
-_put_command = partial(_command,
-                       method='put',
-                       headers={'Content-Length': 0})
+_put_command = partial(_command, method='put')
 
 
 class Worker(JobResource):
@@ -66,18 +64,18 @@ class Worker(JobResource):
         """
 
     @_put_command
-    def flag(self, reason=None, persist=False):
+    def flag(self, flag, persist=False):
         """
         Flags and prevents a Worker from completing the Job with
-        the ``reason``. Existing Judgments will not be thrown
+        the reason ``flag``. Existing Judgments will not be thrown
         away. If ``persist`` is se to ``True``, then the Worker is
         flagged out from all Jobs.
         """
 
     @_put_command
-    def deflag(self, reason):
+    def deflag(self, deflag):
         """
-        De-flags a worker with the ``reason``.
+        De-flags a worker with the reason ``deflag``.
         """
 
     @_put_command
