@@ -32,6 +32,9 @@ class Client(object):
     """
     CrowdFlower API client. Requires API ``key`` for authentication.
 
+    TODO: Trust data model types in order to provide general methods instead
+    of specialized do_this and do_that methods.
+
     :param key: CrowdFlower API key. Required for authentication.
     """
 
@@ -42,7 +45,7 @@ class Client(object):
 
     def _call(self, path,
               data=None,
-              headers=None,
+              headers={},
               query={},
               method='get',
               files=None,
@@ -78,7 +81,7 @@ class Client(object):
                 url=self.API_URL.format(path=path),
                 params=dict(key=self._key, **query),
                 data=data,
-                headers=headers,
+                headers=dict(accept='application/json', **headers),
                 files=files
             )
             # Raise an exception, if server responded with 50x or so
@@ -179,10 +182,8 @@ class Client(object):
         :returns: Newly created Job
         :rtype: crowdflower.job.Job
         """
-        return Job(self._call('jobs.json',
-                              self._make_cf_attrs('job', attrs),
-                              method='post'),
-                   client=self)
+        return Job(client=self, **self._call(
+            'jobs.json', self._make_cf_attrs('job', attrs), method='post'))
 
     def update_job(self, job_id, attrs):
         """
@@ -206,7 +207,7 @@ class Client(object):
         :returns: Crowdflower job
         :rtype: crowdflower.job.Job
         """
-        return Job(self._call('jobs/{}.json'.format(job_id)), client=self)
+        return Job(client=self, **self._call('jobs/{}.json'.format(job_id)))
 
     def get_jobs(self):
         """
@@ -216,7 +217,7 @@ class Client(object):
         :rtype: iter of crowdflower.job.Job
         """
         for data in self._call('jobs.json'):
-            yield Job(data, client=self)
+            yield Job(client=self, **data)
 
     def _upload_job(self, data, type_, job_id):
         headers = {'Content-Type': type_}
@@ -227,8 +228,10 @@ class Client(object):
         else:
             path = 'jobs/upload.json'
 
-        return Job(self._call(path, data=data, headers=headers, method='post'),
-                   client=self)
+        return Job(
+            client=self,
+            **self._call(path, data=data, headers=headers, method='post')
+        )
 
     def upload_job(self, data, job_id=None):
         """
@@ -307,11 +310,10 @@ class Client(object):
            aggregate lacks documentation at https://crowdflower.com/docs-api ,
            so this code is very very likely to break in the future.
         """
-        return list(
-            map(functools.partial(JudgmentAggregate, job, client=self),
-                self._call('jobs/{}/judgments.json'.format(job.id),
-                           query=dict(page=page, limit=limit)).values())
-        )
+        for data in self._call(
+                'jobs/{}/judgments.json'.format(job.id),
+                query=dict(page=page, limit=limit)).values():
+            yield JudgmentAggregate(job, client=self, **data)
 
     def get_judgment(self, job, judgment_id):
         """
@@ -319,26 +321,28 @@ class Client(object):
         """
         return Judgment(
             job,
-            self._call('jobs/{}/judgments/{}.json'.format(job.id,
-                                                          judgment_id)),
-            client=self
+            client=self,
+            **self._call(
+                'jobs/{}/judgments/{}.json'.format(job.id, judgment_id)
+            )
         )
 
     def get_units(self, job):
         """
         Get Units for ``job``.
         """
-        return list(
-            map(functools.partial(Unit, job, client=self),
-                self._call('jobs/{}/units.json'.format(job.id)))
-        )
+        for data in self._call('jobs/{}/units.json'.format(job.id)):
+            yield Unit(job, client=self, **data)
 
     def unit_from_json(self, data):
         """
         Create a new Unit instance from JSON ``data``.
         """
-        return Unit(Job({'id': data['job_id']}, client=self), data,
-                    client=self)
+        return Unit(
+            Job(id=data['job_id'], client=self),
+            client=self,
+            **data
+        )
 
     def copy_job(self, job_id, all_units, gold):
         """
@@ -348,10 +352,14 @@ class Client(object):
         :param gold: If true, only golden units will be copied to the new job.
         :returns: crowdflower.job.Job
         """
-        return Job(self._call('jobs/{}/copy.json'.format(job_id),
-                              dict(all_units=all_units, gold=gold),
-                              method='post'),
-                   client=self)
+        return Job(
+            client=self,
+            **self._call(
+                'jobs/{}/copy.json'.format(job_id),
+                dict(all_units=all_units, gold=gold),
+                method='post'
+            )
+        )
 
     def get_job_channels(self, job_id):
         """
@@ -396,7 +404,7 @@ class Client(object):
     def send_job_command(self, job_id, command):
         """
         Sends a ``command`` to given ``job_id``. Command
-        must be one of ``{'pause', 'resume', 'cancel', 'ping', 'legend'}.
+        must be one of ``{'pause', 'resume', 'cancel', 'ping', 'legend'}``.
 
         :param job_id: Id of job to send command to
         :param command: The command word to send
@@ -405,4 +413,41 @@ class Client(object):
         if command not in self._VALID_JOB_COMMANDS:
             raise ValueError("invalid command for Job: '{}'".format(command))
 
-        return self._call('jobs/{}/{}'.format(job_id, command))
+        return self._call('jobs/{}/{}.json'.format(job_id, command))
+
+    _VALID_WORKER_COMMANDS = frozenset([
+        'bonus', 'notify'])
+
+    def send_worker_command(self, worker_id, job_id, command, data, method='post'):
+        """
+        Sends a ``command`` to ``worker_id`` in ``job_id``
+        with optional ``query`` params and post ``data``.
+
+        :raise: ValueError for invalid commands
+        """
+        if command not in self._VALID_WORKER_COMMANDS:
+            raise ValueError(
+                "invalid command for Worker: '{}'".format(command))
+
+        return self._call(
+            'jobs/{}/workers/{}/{}.json'.format(
+                job_id,
+                worker_id,
+                command
+            ),
+            method=method,
+            data=data
+        )
+
+    def flag_worker(self, worker_id, job_id, data):
+        """
+        Flags or de-flags a worker. The parameters in ``data`` control
+        whether to ``flag`` or ``deflag`` the worker.
+        """
+        return self._call(
+            'jobs/{}/workers/{}.json'.format(
+                job_id, worker_id
+            ),
+            method='put',
+            data=data
+        )

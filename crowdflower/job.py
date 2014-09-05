@@ -22,7 +22,7 @@ class Job(Base):
     CrowdFlower Job.
 
     Documentation for attributes can be found at
-    http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes
+    http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes .
 
     :param data: Job JSON dictionary
     :type data: dict
@@ -91,6 +91,9 @@ class Job(Base):
     order_approved = RoAttribute()
     project_number = RoAttribute()
     worker_ui_remix = RoAttribute()
+
+    def __init__(self, client=None, **data):
+        super(Job, self).__init__(data, client=client)
 
     def _send_changes(self, changes):
         """
@@ -182,7 +185,8 @@ class Job(Base):
 
         except AttributeError:
             # noinspection PyAttributeOutsideInit
-            self._judgments_aggregates = self._client.get_judgmentaggregates(self)
+            self._judgments_aggregates = list(
+                self._client.get_judgmentaggregates(self))
             return self._judgments_aggregates
 
     def get_judgment(self, judgment_id):
@@ -228,7 +232,7 @@ class Job(Base):
 
         except AttributeError:
             # noinspection PyAttributeOutsideInit
-            self._units = self._client.get_units(self)
+            self._units = list(self._client.get_units(self))
             return self._units
 
     @_command

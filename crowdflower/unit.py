@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Base, Attribute, RoAttribute
+from .base import Attribute, RoAttribute, JobResource
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
-class Unit(Base):
+class Unit(JobResource):
     """
     CrowdFlower Unit.
+
+    Documentation for attributes can be found at
+    http://success.crowdflower.com/customer/portal/articles/1621707 .
 
     :param job: Job instance owning this Unit
     :type job: crowdflower.job.Job
@@ -17,31 +20,28 @@ class Unit(Base):
     :type client: crowdflower.client.Client
     """
 
-    def __init__(self, job, data, client=None):
-        self.job = job
-        super(Unit, self).__init__(data, client=client)
-
-    updated_at = RoAttribute()
     created_at = RoAttribute()
-    judgments_count = RoAttribute()
     id = RoAttribute()
+    judgments_count = RoAttribute()
+    updated_at = RoAttribute()
 
+    agreement = Attribute()
+    data = Attribute()
+    difficulty = Attribute()
     job_id = Attribute()
     missed_count = Attribute()
-    difficulty = Attribute()
     state = Attribute()
-    data = Attribute()
-    agreement = Attribute()
 
-    def get_results(self):
+    @property
+    def results(self):
         """
-        Get unit results, if available.
+        Get unit results, if available. RO attribute.
         """
         return self._json.get('results')
 
     def get_aggregate(self, key, default=None):
         """
-        Get aggregated result for ```key```, or return ```default```.
+        Get aggregated result for ``key``, or return ``default``.
 
         :param key: Name of result value.
         :type key: str

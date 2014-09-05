@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Base, Attribute, RoAttribute
+from .base import Attribute, RoAttribute, JobResource
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
-class JudgmentAggregate(Base):
+class JudgmentAggregate(JobResource):
     """
     CrowdFlower Judgment aggregate.
 
@@ -21,10 +21,6 @@ class JudgmentAggregate(Base):
     ids = RoAttribute(name='_ids')
     state = RoAttribute(name='_state')
     updated_at = RoAttribute(name='_updated_at')
-
-    def __init__(self, job, *args, **kwgs):
-        self.job = job
-        super(JudgmentAggregate, self).__init__(*args, **kwgs)
 
     def get_fields(self):
         """
@@ -66,7 +62,7 @@ class JudgmentAggregate(Base):
             return self._judgments
 
 
-class Judgment(Base):
+class Judgment(JobResource):
     """
     CrowdFlower Judgment.
 
@@ -103,7 +99,3 @@ class Judgment(Base):
     city = Attribute()
     golden = Attribute()
     unit_state = Attribute()
-
-    def __init__(self, job, data, client=None):
-        self.job = job
-        super(Judgment, self).__init__(data, client=client)
