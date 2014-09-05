@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
 from .base import Base, Attribute, RoAttribute
-from functools import partial, wraps
+from .worker import Worker
+from functools import wraps
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -266,3 +267,9 @@ class Job(Base):
         """
         Display generated keys submitted with the form.
         """
+
+    def get_worker(self, worker_id):
+        """
+        Get Worker ``worker_id`` bound to this Job.
+        """
+        return Worker(self, client=self._client, id=worker_id)
