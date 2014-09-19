@@ -113,6 +113,28 @@ class Client(object):
 
         return resp_json
 
+    def _paged_call(self, *args, page=1, limit=100, sentinel=None, **kwgs):
+        """
+        Generate paged calls to API end points, wraps :meth:`_call`. Provide
+        ``sentinel`` in order to stop paging at desired point. If ``sentinel``
+        is a function, it should accept latest ``response`` as argument.
+
+        This can not yield items from response, since some responses are
+        dictionaries, while others are lists.
+        """
+        query = kwgs.pop('query', {})
+        page = count(page)
+
+        for response in iter(
+            lambda: self._call(
+                *args,
+                query=dict(query, page=next(page), limit=limit),
+                **kwgs
+            ),
+            sentinel
+        ):
+            yield response
+
     def _recursive_items(self, dict_, path=()):
         """
         Recursive generator for producing a flat list from nested dictionaries.
@@ -217,11 +239,7 @@ class Client(object):
         :returns: an iterator of CrowdFlower jobs
         :rtype: iter of crowdflower.job.Job
         """
-        page = count(1)
-        for resp in iter(
-            lambda: self._call('jobs.json', query=dict(page=next(page))),
-            []
-        ):
+        for resp in self._paged_call('jobs.json', sentinel=[]):
             for data in resp:
                 yield Job(client=self, **data)
 
@@ -316,14 +334,8 @@ class Client(object):
            aggregate lacks documentation at https://crowdflower.com/docs-api ,
            so this code is very very likely to break in the future.
         """
-        page = count(1)
-        for resp in iter(
-            lambda: self._call(
-                'jobs/{}/judgments.json'.format(job.id),
-                query=dict(page=next(page), limit=100)
-            ),
-            {}
-        ):
+        for resp in self._paged_call('jobs/{}/judgments.json'.format(job.id),
+                                     sentinel={}):
             for data in resp.values():
                 yield JudgmentAggregate(job, client=self, **data)
 
@@ -353,14 +365,8 @@ class Client(object):
         Get :class:`unit promises <crowdflower.unit.UnitPromise>`
         for :class:`~.job.Job`.
         """
-        page = count(1)
-        for resp in iter(
-            lambda: self._call(
-                'jobs/{}/units.json'.format(job.id),
-                query=dict(page=next(page), limit=100)
-            ),
-            {}
-        ):
+        for resp in self._paged_call('jobs/{}/units.json'.format(job.id),
+                                     sentinel={}):
             for unit_id, data in resp.items():
                 yield UnitPromise(job, client=self, id=unit_id, data=data)
 
