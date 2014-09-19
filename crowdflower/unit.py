@@ -1,8 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Attribute, RoAttribute, JobResource
+from .base import Attribute, RoAttribute, JobResource, Promise
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
+
+
+class UnitPromise(JobResource, Promise):
+    """
+    A promise that a :class:`Unit` will be available for querying attributes
+    when needed.
+    """
+
+    id = RoAttribute()
+    data = Attribute()
+
+    def _get_object(self):
+        """
+        :class:`Unit` getter.
+        """
+        return self.client.get_unit(self.job, self.id)
 
 
 class Unit(JobResource):

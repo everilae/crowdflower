@@ -2,7 +2,7 @@
 from __future__ import print_function, division, absolute_import
 from itertools import count
 from .order import Order
-from .unit import Unit
+from .unit import Unit, UnitPromise
 from .job import Job
 from .judgment import JudgmentAggregate, Judgment
 import contextlib
@@ -305,7 +305,7 @@ class Client(object):
         """
         self._call('jobs/{}.json'.format(job_id), method='delete')
 
-    def get_judgmentaggregates(self, job, page=1, limit=100):
+    def get_judgmentaggregates(self, job):
         """
         Get JudgmentAggregates for ``job``.
 
@@ -316,10 +316,16 @@ class Client(object):
            aggregate lacks documentation at https://crowdflower.com/docs-api ,
            so this code is very very likely to break in the future.
         """
-        for data in self._call(
+        page = count(1)
+        for resp in iter(
+            lambda: self._call(
                 'jobs/{}/judgments.json'.format(job.id),
-                query=dict(page=page, limit=limit)).values():
-            yield JudgmentAggregate(job, client=self, **data)
+                query=dict(page=next(page), limit=100)
+            ),
+            {}
+        ):
+            for data in resp.values():
+                yield JudgmentAggregate(job, client=self, **data)
 
     def get_judgment(self, job, judgment_id):
         """
@@ -333,12 +339,30 @@ class Client(object):
             )
         )
 
+    def get_unit(self, job, unit_id):
+        """
+        Get :class:`~.unit.Unit` ``unit_id`` for :class:`~.job.Job`.
+        """
+        return Unit(
+            job, client=self,
+            **self._call('jobs/{}/units/{}.json'.format(job.id, unit_id))
+        )
+
     def get_units(self, job):
         """
-        Get Units for ``job``.
+        Get :class:`unit promises <crowdflower.unit.UnitPromise>`
+        for :class:`~.job.Job`.
         """
-        for data in self._call('jobs/{}/units.json'.format(job.id)):
-            yield Unit(job, client=self, **data)
+        page = count(1)
+        for resp in iter(
+            lambda: self._call(
+                'jobs/{}/units.json'.format(job.id),
+                query=dict(page=next(page), limit=100)
+            ),
+            {}
+        ):
+            for unit_id, data in resp.items():
+                yield UnitPromise(job, client=self, id=unit_id, data=data)
 
     def unit_from_json(self, data):
         """

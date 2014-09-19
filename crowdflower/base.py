@@ -131,3 +131,28 @@ class JobResource(Base):
     def __init__(self, job, client=None, **data):
         super(JobResource, self).__init__(data, client=client)
         self.job = job
+
+
+class Promise(object):
+    """
+    A promise that an crowdflower object will be available for querying
+    attributes when needed.
+    """
+
+    _object = None
+
+    def _get_object(self):
+        """
+        Abstract method.
+        """
+        raise NotImplementedError(
+            "abstract method '_get_object' not implemented")
+
+    def __getattr__(self, item):
+        """
+        Proxy attribute access to underlying object, if already fetched.
+        """
+        if self._object is None:
+            self._object = self._get_object()
+
+        return getattr(self._object, item)
