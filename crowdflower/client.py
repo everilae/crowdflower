@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
+from itertools import count
 from .order import Order
 from .unit import Unit
 from .job import Job
@@ -216,8 +217,13 @@ class Client(object):
         :returns: an iterator of CrowdFlower jobs
         :rtype: iter of crowdflower.job.Job
         """
-        for data in self._call('jobs.json'):
-            yield Job(client=self, **data)
+        page = count(1)
+        for resp in iter(
+            lambda: self._call('jobs.json', query=dict(page=next(page))),
+            []
+        ):
+            for data in resp:
+                yield Job(client=self, **data)
 
     def _upload_job(self, data, type_, job_id):
         headers = {'Content-Type': type_}
