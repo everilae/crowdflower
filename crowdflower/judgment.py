@@ -58,7 +58,7 @@ class JudgmentAggregate(JobResource):
         except AttributeError:
             # noinspection PyAttributeOutsideInit
             self._judgments = [self._client.get_judgment(self.job, id_)
-                               for id_ in self._ids]
+                               for id_ in self.ids]
             return self._judgments
 
 
