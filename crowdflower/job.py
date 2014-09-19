@@ -10,7 +10,7 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 def _command(f):
     """
-    Helper function for creating repetitive :py:class:`Job <crowdflower.job.Job>` commands.
+    Helper function for creating repetitive :class:`Job` commands.
     """
     @wraps(f)
     def cmd(self):
@@ -28,7 +28,7 @@ class Job(Base):
 
     :param data: Job JSON dictionary
     :type data: dict
-    :param client: :py:class:`Client <crowdflower.client.Client>` instance that created this job instance
+    :param client: :class:`~.client.Client` instance that created this job instance
     :type client: crowdflower.client.Client
     """
 
@@ -99,21 +99,21 @@ class Job(Base):
 
     def _send_changes(self, changes):
         """
-        Update Job instance changes to server and return resulting
+        Update :class:`Job` instance changes to server and return resulting
         reply JSON data.
 
-        Normally subclasses need not implement both '_send_changes' and
-        'update' methods, but Jobs require special data inspections that
-        must be documented clearly.
+        Normally subclasses need not implement both :meth:`_send_changes` and
+        :meth:`update` methods, but :class:`Job`s require special data inspections
+        that must be documented clearly.
         """
         return self._client.update_job(self.id, changes)
 
     def update(self):
         """
-        Send updates made to this instance to CrowdFlower. Note that 'title',
-        'instructions' and 'cml' attributes must exist (either in the update or
-        in the job already) for any changes to really persist, and so this
-        method raises a RuntimeError, if any of them is missing.
+        Send updates made to this instance to CrowdFlower. Note that :attr:`title`,
+        :attr:`instructions` and :attr:`cml` attributes must exist (either in the
+        update or in the job already) for any changes to really persist, and so this
+        method raises a :exc:`RuntimeError`, if any of them is missing.
 
            "At minimum, your job must have a valid title, instructions, and one
            required CML form element to be saved successfully." [1]_
@@ -175,21 +175,24 @@ class Job(Base):
 
     def delete(self):
         """
-        Delete this job, removing it from CrowdFlower. Calling Job instance
-        will be invalid after deletion and must not be used anymore.
+        Delete this job, removing it from CrowdFlower. Calling :class:`Job`
+        instance will be invalid after deletion and must not be used anymore.
         """
         self._client.delete_job(self.id)
 
     @property
     def judgment_aggregates(self):
         """
-        List of aggregated judgments for this job.
+        List of :class:`~.judgment.JudgmentAggregate` instances of this :class:`Job`.
 
         .. warning::
 
            Judgments are paged with a maximum of 100 items per page. If your
            job has a lot of judgments – thousands or more – this will take
-           a very VERY long time to finish.
+           a very VERY long time to finish when accessed for the first time.
+           This might produce some nasty surprises, if :class:`Job` instances
+           are inspected with :func:`inspect.getmembers` or some such.
+
         """
         try:
             return self._judgments_aggregates
@@ -210,7 +213,7 @@ class Job(Base):
 
     def get_judgment(self, judgment_id):
         """
-        Get single Judgment for this job.
+        Get single :class:`~.judgment.Judgment` for this :class:`Job`.
         """
         return self._client.get_judgment(self, judgment_id)
 
@@ -244,7 +247,7 @@ class Job(Base):
     @property
     def units(self):
         """
-        List of Units for this job.
+        List of :class:`~.unit.Unit` instances of this :class:`Job`.
         """
         try:
             return self._units
@@ -288,13 +291,12 @@ class Job(Base):
 
     def get_worker(self, worker_id):
         """
-        Get Worker ``worker_id`` bound to this Job.
+        Get :class:`~.worker.Worker` ``worker_id`` bound to this :class:`Job`.
         """
         return Worker(self, client=self._client, id=worker_id)
 
     def launch(self, units_count, channels=('on_demand',)):
         """
-        Order Job with ``units_count`` at
-        ``channels``.
+        Order job with ``units_count`` at ``channels``.
         """
         return self._client.debit_order(self, units_count, channels)

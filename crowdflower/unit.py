@@ -12,9 +12,9 @@ class Unit(JobResource):
     Documentation for attributes can be found at
     http://success.crowdflower.com/customer/portal/articles/1621707 .
 
-    :param job: :py:class:`Job <crowdflower.job.Job>` instance owning this Unit
+    :param job: :class:`~.job.Job` instance owning this :class:`Unit`
     :type job: crowdflower.job.Job
-    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :param client: :class:`~.client.Client` instance
     :type client: crowdflower.client.Client
     :param data: Unit JSON dictionary
     :type data: dict

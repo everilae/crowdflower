@@ -9,13 +9,13 @@ __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 def _command(f, method='post'):
     """
-    Helper function for handling :py:class:`Worker <crowdflower.worker.Worker>` commands.
+    Helper function for handling :class:`Worker` commands.
     """
 
     @wraps(f)
     def cmd(self, *args, **kwgs):
         """
-        Self is :py:class:`crowdflower.worker.Worker` instance.
+        Self is :class:`Worker` instance.
         """
         callargs = getcallargs(f, self, *args, **kwgs)
         del callargs['self']
@@ -38,9 +38,9 @@ class Worker(JobResource):
     """
     CrowdFlower Worker.
 
-    :param job: :py:class:`Job <crowdflower.job.Job>` instance owning this Worker
+    :param job: :class:`~.job.Job` instance owning this :class:`Worker`
     :type job: crowdflower.job.Job
-    :param client: API :py:class:`client <crowdflower.client.Client>`
+    :param client: :class:`~.client.Client` instance
     :type client: crowdflower.client.Client
     :param data: Attributes
     :type data: dict
@@ -51,7 +51,7 @@ class Worker(JobResource):
     @_command
     def bonus(self, amount, reason=None):
         """
-        Pay Worker a bonus of ``amount`` cents. Optionally
+        Pay :class:`Worker` a bonus of ``amount`` cents. Optionally
         include a message stating the ``reason`` of the bonus.
 
         :param amount: Amount in cents
@@ -63,7 +63,7 @@ class Worker(JobResource):
     @_command
     def notify(self, message):
         """
-        Notify a Worker contributor with the ``message``. The message
+        Notify a :class:`Worker` contributor with the ``message``. The message
         appears in the workers dashboard.
 
         :param message: Message to Worker
@@ -73,9 +73,9 @@ class Worker(JobResource):
     @_put_command
     def flag(self, flag, persist=False):
         """
-        Flags and prevents a Worker from completing the Job with
-        the reason ``flag``. Existing Judgments will not be thrown
-        away. If ``persist`` is se to ``True``, then the Worker is
+        Flags and prevents a :class:`Worker` from completing the :class:`~.job.Job`
+        with the reason ``flag``. Existing :class:`judgments <crowdflower.judgment.Judgment>`
+        will not be thrown away. If ``persist`` is se to ``True``, then the Worker is
         flagged out from all Jobs.
 
         :param flag: Flag reason
@@ -87,7 +87,7 @@ class Worker(JobResource):
     @_put_command
     def deflag(self, deflag):
         """
-        De-flags a worker with the reason ``deflag``.
+        De-flags a :class:`Worker` with the reason ``deflag``.
 
         :param deflag: De-flag reason
         :type deflag: str
@@ -96,10 +96,11 @@ class Worker(JobResource):
     @_put_command
     def reject(self):
         """
-        Prevents Worker from completing Jobs and removes all Judgments.
+        Prevents :class:`Worker` from completing :class:`jobs <crowdflower.job.Job>`
+        and removes all :class:`judgments <crowdflower.judgment.Judgment>`.
 
-        Care should be taken since a finalized Job cannot collect new
-        Judgments to replace the missing data.
+        Care should be taken since a finalized :class:`~.job.Job` cannot collect new
+        :class:`judgments <crowdflower.judgment.Judgment>` to replace the missing data.
 
         This feature is only available to Pro and Enterprise users.
         """

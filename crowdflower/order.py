@@ -12,12 +12,12 @@ class Order(JobResource):
     Documentation for attributes can be found at
     http://success.crowdflower.com/customer/portal/articles/1288323-api-documentation#header_5
 
-    An Order must be placed for a :py:class:`Job <crowdflower.job.Job>` to collect
-    :py:class:`Judgments <crowdflower.judgment.Judgment>`.
+    An Order must be placed for a :class:`~.job.Job` to collect
+    :class:`~.judgment.Judgment`.
 
-    :param job: :py:class:`Job <crowdflower.job.Job>` instance owning this Unit
+    :param job: :class:`~.job.Job` instance owning this :class:`Unit`
     :type job: crowdflower.job.Job
-    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :param client: :class:`~.client.Client` instance
     :type client: crowdflower.client.Client
     :param data: Unit JSON dictionary
     :type data: dict

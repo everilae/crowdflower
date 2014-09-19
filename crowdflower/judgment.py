@@ -9,9 +9,9 @@ class JudgmentAggregate(JobResource):
     """
     CrowdFlower Judgment aggregate.
 
-    :param job: :py:class:`Job <crowdflower.job.Job>` instance that this Judgment belongs to
+    :param job: :class:`~.job.Job` instance that this :class:`JudgmentAggregate` belongs to
     :type job: crowdflower.job.Job
-    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :param client: :class:`~.client.Client` instance
     :type client: crowdflower.client.Client
     :param data: Job JSON dictionary
     :type data: dict
@@ -50,7 +50,7 @@ class JudgmentAggregate(JobResource):
     @property
     def judgments(self):
         """
-        List of Judgment instances for this aggregate.
+        List of :class:`Judgment` instances for this aggregate.
         """
         try:
             return self._judgments
@@ -66,9 +66,9 @@ class Judgment(JobResource):
     """
     CrowdFlower Judgment.
 
-    :param job: :py:class:`Job <crowdflower.job.Job>` instance that this Judgment belongs to
+    :param job: :class:`~.job.Job` instance that this :class:`Judgment` belongs to
     :type job: crowdflower.job.Job
-    :param client: :py:class:`Client <crowdflower.client.Client>` instance
+    :param client: :class:`~.client.Client` instance
     :type client: crowdflower.client.Client
     :param data: Job JSON dictionary
     :type data: dict
