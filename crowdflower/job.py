@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
+from itertools import count, chain
 from .base import Base, Attribute, RoAttribute
 from .worker import Worker
 from functools import wraps
@@ -183,14 +184,28 @@ class Job(Base):
     def judgment_aggregates(self):
         """
         List of aggregated judgments for this job.
+
+        .. warning::
+
+           Judgments are paged with a maximum of 100 items per page. If your
+           job has a lot of judgments – thousands or more – this will take
+           a very VERY long time to finish.
         """
         try:
             return self._judgments_aggregates
 
         except AttributeError:
+            page = count(1)
             # noinspection PyAttributeOutsideInit
-            self._judgments_aggregates = list(
-                self._client.get_judgmentaggregates(self))
+            self._judgments_aggregates = list(chain(*iter(
+                # FIXME: get_judgmentaggregates should signal an empty page,
+                # would allow passing the generator iterable to chain here
+                # without creating a list in between
+                lambda: list(
+                    self._client.get_judgmentaggregates(self, page=next(page))
+                ),
+                []
+            )))
             return self._judgments_aggregates
 
     def get_judgment(self, judgment_id):
