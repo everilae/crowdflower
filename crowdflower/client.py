@@ -29,6 +29,44 @@ class ApiError(Exception):
     """
 
 
+class PathFactory:
+    """
+    Magic attribute/item syntax for making calls.
+    """
+    def __init__(self, client, name=()):
+        """
+        :type client: Client
+        :type name: tuple
+        """
+        self.client = client
+        self.name = name
+
+    def __getattr__(self, name):
+        return self.__class__(self.client, self.name + (name,))
+
+    def __getitem__(self, name):
+        return self.__class__(self.client, self.name + (str(name),))
+
+    SUFFIX = '.json'
+
+    def _path(self, suffix):
+        return '/'.join(self.name) + (suffix if suffix else '')
+
+    def __call__(self, *args, _suffix=SUFFIX, **kwgs):
+        return self.client.call(
+            self._path(_suffix),
+            *args,
+            **kwgs
+        )
+
+    def pages(self, *args, _suffix=SUFFIX, **kwgs):
+        return self.client.paged_call(
+            self._path(_suffix),
+            *args,
+            **kwgs
+        )
+
+
 class Client(object):
     """
     CrowdFlower API client. Requires API ``key`` for authentication.
@@ -43,14 +81,15 @@ class Client(object):
 
     def __init__(self, key):
         self._key = key
+        self.jobs = PathFactory(self, ('jobs',))
 
-    def _call(self, path,
-              data=None,
-              headers={},
-              query={},
-              method='get',
-              files=None,
-              as_json=True):
+    def call(self, path,
+             data=None,
+             headers={},
+             query={},
+             method='get',
+             files=None,
+             as_json=True):
         """
         Data may be str (unicode) or bytes. Unicode strings will be
         encoded to UTF-8 bytes.
@@ -113,7 +152,7 @@ class Client(object):
 
         return resp_json
 
-    def _paged_call(self, *args, page=1, limit=100, sentinel=None, **kwgs):
+    def paged_call(self, *args, page=1, limit=100, sentinel=None, **kwgs):
         """
         Generate paged calls to API end points, wraps :meth:`_call`. Provide
         ``sentinel`` in order to stop paging at desired point. If ``sentinel``
@@ -126,7 +165,7 @@ class Client(object):
         page = count(page)
 
         for response in iter(
-            lambda: self._call(
+            lambda: self.call(
                 *args,
                 query=dict(query, page=next(page), limit=limit),
                 **kwgs
@@ -205,8 +244,11 @@ class Client(object):
         :returns: Newly created Job
         :rtype: crowdflower.job.Job
         """
-        return Job(client=self, **self._call(
-            'jobs.json', self._make_cf_attrs('job', attrs), method='post'))
+        return Job(
+            client=self,
+            **self.jobs(data=self._make_cf_attrs('job', attrs),
+                        method='post')
+        )
 
     def update_job(self, job_id, attrs):
         """
@@ -217,9 +259,9 @@ class Client(object):
         :param attrs: JSON dictionary of attributes to update
         :type attrs: dict
         """
-        return self._call('jobs/{}.json'.format(job_id),
-                          self._make_cf_attrs('job', attrs),
-                          method='put')
+        return self.call('jobs/{}.json'.format(job_id),
+                         self._make_cf_attrs('job', attrs),
+                         method='put')
 
     def get_job(self, job_id):
         """
@@ -230,7 +272,7 @@ class Client(object):
         :returns: Crowdflower job
         :rtype: crowdflower.job.Job
         """
-        return Job(client=self, **self._call('jobs/{}.json'.format(job_id)))
+        return Job(client=self, **self.jobs[job_id]())
 
     def get_jobs(self):
         """
@@ -239,7 +281,7 @@ class Client(object):
         :returns: an iterator of CrowdFlower jobs
         :rtype: iter of crowdflower.job.Job
         """
-        for resp in self._paged_call('jobs.json', sentinel=[]):
+        for resp in self.jobs.pages(sentinel=[]):
             for data in resp:
                 yield Job(client=self, **data)
 
@@ -247,14 +289,14 @@ class Client(object):
         headers = {'Content-Type': type_}
 
         if job_id is not None:
-            path = 'jobs/{}/upload.json'.format(job_id)
+            path = self.jobs[job_id].upload
 
         else:
-            path = 'jobs/upload.json'
+            path = self.jobs.upload
 
         return Job(
             client=self,
-            **self._call(path, data=data, headers=headers, method='post')
+            **path(data=data, headers=headers, method='post')
         )
 
     def upload_job(self, data, job_id=None):
@@ -321,7 +363,7 @@ class Client(object):
         """
         Delete job ``job_id`` from CrowdFlower.
         """
-        self._call('jobs/{}.json'.format(job_id), method='delete')
+        self.jobs[job_id](method='delete')
 
     def get_judgmentaggregates(self, job):
         """
@@ -334,8 +376,7 @@ class Client(object):
            aggregate lacks documentation at https://crowdflower.com/docs-api ,
            so this code is very very likely to break in the future.
         """
-        for resp in self._paged_call('jobs/{}/judgments.json'.format(job.id),
-                                     sentinel={}):
+        for resp in self.jobs[job.id].judgments.pages(sentinel={}):
             for data in resp.values():
                 yield JudgmentAggregate(job, client=self, **data)
 
@@ -346,9 +387,7 @@ class Client(object):
         return Judgment(
             job,
             client=self,
-            **self._call(
-                'jobs/{}/judgments/{}.json'.format(job.id, judgment_id)
-            )
+            **self.jobs[job.id].judgments[judgment_id]()
         )
 
     def get_unit(self, job, unit_id):
@@ -357,7 +396,7 @@ class Client(object):
         """
         return Unit(
             job, client=self,
-            **self._call('jobs/{}/units/{}.json'.format(job.id, unit_id))
+            **self.jobs[job.id].units[unit_id]()
         )
 
     def get_units(self, job):
@@ -365,8 +404,7 @@ class Client(object):
         Get :class:`unit promises <crowdflower.unit.UnitPromise>`
         for :class:`~.job.Job`.
         """
-        for resp in self._paged_call('jobs/{}/units.json'.format(job.id),
-                                     sentinel={}):
+        for resp in self.jobs[job.id].units.pages(sentinel={}):
             for unit_id, data in resp.items():
                 yield UnitPromise(job, client=self, id=unit_id, data=data)
 
@@ -390,8 +428,7 @@ class Client(object):
         """
         return Job(
             client=self,
-            **self._call(
-                'jobs/{}/copy.json'.format(job_id),
+            **self.jobs[job_id].copy(
                 dict(all_units=all_units, gold=gold),
                 method='post'
             )
@@ -420,7 +457,7 @@ class Client(object):
         """
         # So... suddenly the API throws 404, if we add the '.json' at the
         # end. Nice.
-        return self._call('jobs/{}/channels'.format(job_id))
+        return self.jobs[job_id].channels(_suffix=None)
 
     def set_job_channels(self, job_id, channels):
         """
@@ -430,26 +467,25 @@ class Client(object):
         :param channels: a list of channels to enable
         """
         # requests <3 <3 <3, handles multi value POST body like a charm
-        return self._call('jobs/{}/channels'.format(job_id),
-                          data={'channels[]': channels},
-                          method='put')
+        return self.jobs[job_id].channels(
+            _suffix=None, data={'channels[]': channels}, method='put')
 
     _VALID_JOB_COMMANDS = frozenset([
         'pause', 'resume', 'cancel', 'ping', 'legend'])
 
     def send_job_command(self, job, command):
         """
-        Sends a ``command`` to given ``job_id``. Command
+        Sends a ``command`` to given ``job``. Command
         must be one of ``{'pause', 'resume', 'cancel', 'ping', 'legend'}``.
 
-        :param job: :py:class:`Job <crowdflower.job.Job>` to send command to
+        :param job: :class:`~.job.Job` to send command to
         :param command: The command word to send
         :raise: ValueError for invalid commands
         """
         if command not in self._VALID_JOB_COMMANDS:
             raise ValueError("invalid command for Job: '{}'".format(command))
 
-        return self._call('jobs/{}/{}.json'.format(job.id, command))
+        return self.jobs[job.id][command]()
 
     _VALID_WORKER_COMMANDS = frozenset([
         'bonus', 'notify', 'flag', 'deflag', 'reject'])
@@ -469,18 +505,11 @@ class Client(object):
                 "invalid command for Worker: '{}'".format(command))
 
         # Again with the inconsistencies...
-        if command in self._SPECIAL_WORKER_COMMANDS:
-            path = 'jobs/{job_id}/workers/{worker_id}.json'
+        path = self.jobs[worker.job.id].workers[worker.id]
+        if command not in self._SPECIAL_WORKER_COMMANDS:
+            path = path[command]
 
-        else:
-            path = 'jobs/{job_id}/workers/{worker_id}/{command}.json'
-
-        return self._call(
-            path.format(
-                job_id=worker.job.id,
-                worker_id=worker.id,
-                command=command,
-            ),
+        return path(
             method=method,
             data=data
         )
@@ -491,8 +520,7 @@ class Client(object):
         :py:class:`Job <crowdflower.job.Job>` with ``units_count``
         at ``channels``.
         """
-        return self._call(
-            'jobs/{}/orders.json'.format(job.id),
+        return self.jobs[job.id].orders(
             data={
                 'channels[]': channels,
                 'debit[units_count]': units_count
@@ -506,5 +534,5 @@ class Client(object):
         """
         return Order(
             job, client=self,
-            **self._call('jobs/{}/orders/{}.json'.format(job.id, order_id))
+            **self.jobs[job.id].orders[order_id]()
         )

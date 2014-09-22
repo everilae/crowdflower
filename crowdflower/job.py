@@ -13,7 +13,7 @@ def _command(f):
     """
     @wraps(f)
     def cmd(self):
-        return self._client.send_job_command(self.id, f.__name__)
+        return self._client.send_job_command(self, f.__name__)
 
     return cmd
 
