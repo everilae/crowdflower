@@ -7,7 +7,12 @@ from functools import wraps, partial
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
 
-def _command(f, method='post'):
+def _path(client, worker, command):
+    # noinspection PyProtectedMember
+    return client.jobs[worker.job.id].workers[worker.id][command]
+
+
+def _command(f, method='post', pathfun=_path):
     """
     Helper function for handling :class:`Worker` commands.
     """
@@ -19,19 +24,23 @@ def _command(f, method='post'):
         """
         callargs = getcallargs(f, self, *args, **kwgs)
         del callargs['self']
-
-        self._client.send_worker_command(
-            self,
-            f.__name__, callargs,
-            method
+        return pathfun(self._client, self, f.__name__)(
+            data=callargs,
+            method=method
         )
 
     return cmd
 
-# TODO: check which is correct:
-# ruby-crowdflower Worker or
 # http://success.crowdflower.com/customer/portal/articles/1553902-api-request-examples#header_4
 _put_command = partial(_command, method='put')
+# Command is recognized from POST data arguments
+_special_command = partial(
+    _command, method='put',
+    pathfun=(
+        lambda client, worker, command:
+        client.jobs[worker.job.id].workers[worker.id]
+    )
+)
 
 
 class Worker(JobResource):
@@ -70,7 +79,7 @@ class Worker(JobResource):
         :type message: str
         """
 
-    @_put_command
+    @_special_command
     def flag(self, flag, persist=False):
         """
         Flags and prevents a :class:`Worker` from completing the :class:`~.job.Job`
@@ -84,7 +93,7 @@ class Worker(JobResource):
         :type persist: bool
         """
 
-    @_put_command
+    @_special_command
     def deflag(self, deflag):
         """
         De-flags a :class:`Worker` with the reason ``deflag``.

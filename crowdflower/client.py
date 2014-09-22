@@ -38,29 +38,29 @@ class PathFactory:
         :type client: Client
         :type name: tuple
         """
-        self.client = client
-        self.name = name
+        self._client = client
+        self._name = name
 
     def __getattr__(self, name):
-        return self.__class__(self.client, self.name + (name,))
+        return self.__class__(self._client, self._name + (name,))
 
     def __getitem__(self, name):
-        return self.__class__(self.client, self.name + (str(name),))
+        return self.__class__(self._client, self._name + (str(name),))
 
     SUFFIX = '.json'
 
     def _path(self, suffix):
-        return '/'.join(self.name) + (suffix if suffix else '')
+        return '/'.join(self._name) + (suffix if suffix else '')
 
     def __call__(self, *args, _suffix=SUFFIX, **kwgs):
-        return self.client.call(
+        return self._client.call(
             self._path(_suffix),
             *args,
             **kwgs
         )
 
     def pages(self, *args, _suffix=SUFFIX, **kwgs):
-        return self.client.paged_call(
+        return self._client.paged_call(
             self._path(_suffix),
             *args,
             **kwgs
@@ -259,9 +259,8 @@ class Client(object):
         :param attrs: JSON dictionary of attributes to update
         :type attrs: dict
         """
-        return self.call('jobs/{}.json'.format(job_id),
-                         self._make_cf_attrs('job', attrs),
-                         method='put')
+        return self.jobs[job_id](self._make_cf_attrs('job', attrs),
+                                 method='put')
 
     def get_job(self, job_id):
         """
@@ -287,12 +286,12 @@ class Client(object):
 
     def _upload_job(self, data, type_, job_id):
         headers = {'Content-Type': type_}
+        path = self.jobs
 
         if job_id is not None:
-            path = self.jobs[job_id].upload
+            path = path[job_id]
 
-        else:
-            path = self.jobs.upload
+        path = path.upload
 
         return Job(
             client=self,
@@ -469,50 +468,6 @@ class Client(object):
         # requests <3 <3 <3, handles multi value POST body like a charm
         return self.jobs[job_id].channels(
             _suffix=None, data={'channels[]': channels}, method='put')
-
-    _VALID_JOB_COMMANDS = frozenset([
-        'pause', 'resume', 'cancel', 'ping', 'legend'])
-
-    def send_job_command(self, job, command):
-        """
-        Sends a ``command`` to given ``job``. Command
-        must be one of ``{'pause', 'resume', 'cancel', 'ping', 'legend'}``.
-
-        :param job: :class:`~.job.Job` to send command to
-        :param command: The command word to send
-        :raise: ValueError for invalid commands
-        """
-        if command not in self._VALID_JOB_COMMANDS:
-            raise ValueError("invalid command for Job: '{}'".format(command))
-
-        return self.jobs[job.id][command]()
-
-    _VALID_WORKER_COMMANDS = frozenset([
-        'bonus', 'notify', 'flag', 'deflag', 'reject'])
-
-    _SPECIAL_WORKER_COMMANDS = frozenset([
-        'flag', 'deflag'])
-
-    def send_worker_command(self, worker, command, data,
-                            method='post'):
-        """
-        Sends a ``command`` to ``worker`` with post ``data``.
-
-        :raise: ValueError for invalid commands
-        """
-        if command not in self._VALID_WORKER_COMMANDS:
-            raise ValueError(
-                "invalid command for Worker: '{}'".format(command))
-
-        # Again with the inconsistencies...
-        path = self.jobs[worker.job.id].workers[worker.id]
-        if command not in self._SPECIAL_WORKER_COMMANDS:
-            path = path[command]
-
-        return path(
-            method=method,
-            data=data
-        )
 
     def debit_order(self, job, units_count, channels):
         """
