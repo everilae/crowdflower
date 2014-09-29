@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
+from six import with_metaclass
 
 __author__ = u'Ilja Everilä <ilja.everila@liilak.com>'
 
@@ -51,25 +52,7 @@ class _AttributeMeta(type):
         super(_AttributeMeta, cls).__setattr__(key, value)
 
 
-#
-# Workaround for py2 vs. py3 metaclass syntax differences.
-#
-# Python2:
-#
-# class Foo(object):
-#     __metaclass__ = MetaClass
-#     ...
-#
-# Python3:
-#
-# class Foo(metaclass=MetaClass):
-#     ...
-#
-# Both python2 and python3:
-_Base = _AttributeMeta('_Base', (object,), {})
-
-
-class Base(_Base):
+class Base(with_metaclass(_AttributeMeta, object)):
     """
     CrowdFlower Base type.
 
