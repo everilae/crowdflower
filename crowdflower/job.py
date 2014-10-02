@@ -137,16 +137,19 @@ class Job(Base):
         # calls Base.update, which calls _send_changes with changes dict
         super(Job, self).update()
 
-    def upload(self, data):
+    def upload(self, data, force=False):
         """
         Upload given data as JSON.
 
         :param data: Iterable of JSON serializable objects
         :type data: collections.abc.Iterable
+        :param force: If True force adding units even if the columns do not
+                      match existing data
+        :type force: bool
         """
-        self._client.upload_job(data, self.id)
+        self._client.upload_job(data, self.id, force=force)
 
-    def upload_file(self, file, type_=None):
+    def upload_file(self, file, type_=None, force=False):
         """
         Upload a file like object or open a file for reading and upload.
 
@@ -169,8 +172,11 @@ class Job(Base):
         :type file: str or file
         :param type_: Explicit type, required for file like objects
         :type type_: str
+        :param force: If True force adding units even if the columns do not
+                      match existing data
+        :type force: bool
         """
-        self._client.upload_job_file(file, type_, self.id)
+        self._client.upload_job_file(file, type_, self.id, force=force)
 
     def delete(self):
         """

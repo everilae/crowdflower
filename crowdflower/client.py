@@ -284,7 +284,7 @@ class Client(object):
             for data in resp:
                 yield Job(client=self, **data)
 
-    def _upload_job(self, data, type_, job_id):
+    def _upload_job(self, data, type_, job_id, force=False):
         headers = {'Content-Type': type_}
         path = self.jobs
 
@@ -295,10 +295,11 @@ class Client(object):
 
         return Job(
             client=self,
-            **path(data=data, headers=headers, method='post')
+            **path(data=data, headers=headers, method='post',
+                   query=dict(force='true') if force else {})
         )
 
-    def upload_job(self, data, job_id=None):
+    def upload_job(self, data, job_id=None, force=False):
         """
         Upload given data as JSON.
 
@@ -306,16 +307,20 @@ class Client(object):
         :type data: collections.abc.Iterable
         :param job_id: Id of a crowdflower job to update (optional)
         :type job_id: int
+        :param force: If True force adding units even if the columns do not
+                      match existing data
+        :type force: bool
         :returns: crowdflower.job.Job instance
         :rtype: crowdflower.job.Job
         """
         return self._upload_job(
             '\n'.join(map(json.dumps, data)).encode('utf-8'),
             'application/json',
-            job_id
+            job_id,
+            force=force
         )
 
-    def upload_job_file(self, file, type_=None, job_id=None):
+    def upload_job_file(self, file, type_=None, job_id=None, force=False):
         """
         Upload a file like object or open a file for reading and upload.
 
@@ -338,6 +343,9 @@ class Client(object):
         :type type_: str
         :param job_id: Id of a crowdflower job to update (optional)
         :type job_id: int
+        :param force: If True force adding units even if the columns do not
+                      match existing data
+        :type force: bool
         :returns: crowdflower.job.Job instance
         :rtype: crowdflower.job.Job
         """
@@ -356,7 +364,7 @@ class Client(object):
             raise ValueError("Type not set or could not guess type")
 
         with context(file) as fp:
-            return self._upload_job(fp.read(), type_, job_id)
+            return self._upload_job(fp.read(), type_, job_id, force=force)
 
     def delete_job(self, job_id):
         """
