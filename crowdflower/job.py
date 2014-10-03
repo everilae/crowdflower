@@ -126,7 +126,8 @@ class Job(Base):
         .. [1] http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes#header_1
            (Fri Sep 5 11:38:42 UTC 2014)
 
-        :raises: RuntimeError
+        :raises RuntimeError: if :attr:`title`, :attr:`instructions` or :attr:`cml`
+                              is missing
         """
         for attr in {'title', 'instructions', 'cml'}:
             # Does a magic lookup to changes first, then the original json
@@ -162,7 +163,7 @@ class Job(Base):
         containing a filename to open, will make a guess with mimetypes.
 
         If type information is not given and guessing did not work,
-        will raise a ValueError.
+        will raise a :exc:`ValueError`.
 
         Valid types are ``text/csv`` and ``application/json`` for ``.csv`` and
         ``.json`` respectively.
@@ -175,6 +176,8 @@ class Job(Base):
         :param force: If True force adding units even if the columns do not
                       match existing data
         :type force: bool
+        :raises ValueError: if type information isn't provided and cannot
+                            guess
         """
         self._client.upload_job_file(file, type_, self.id, force=force)
 
