@@ -436,7 +436,7 @@ class Client(object):
         return Job(
             client=self,
             **self.jobs[job_id].copy(
-                dict(all_units=all_units, gold=gold),
+                query=dict(all_units=all_units, gold=gold),
                 method='post'
             )
         )
