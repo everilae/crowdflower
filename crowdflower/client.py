@@ -124,11 +124,17 @@ class Client(object):
                 headers=dict(accept='application/json', **headers),
                 files=files
             )
+
+        except Exception as e:
+            raise ApiError("Api request failed: {}".format(e))
+
+        try:
             # Raise an exception, if server responded with 50x or so
             resp.raise_for_status()
 
         except requests.exceptions.RequestException as re:
-            raise ApiError("API request failed: {}".format(re))
+            raise ApiError("API request failed: {} (resp.content={})".format(
+                re, resp.content))
 
         if not as_json:
             # Caller knows what to do, hopefully
