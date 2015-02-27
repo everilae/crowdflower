@@ -52,14 +52,16 @@ class PathFactory:
     def _path(self, suffix):
         return '/'.join(self._name) + (suffix if suffix else '')
 
-    def __call__(self, *args, _suffix=SUFFIX, **kwgs):
+    def __call__(self, *args, **kwgs):
+        _suffix = kwgs.pop('_suffix', self.SUFFIX)
         return self._client.call(
             self._path(_suffix),
             *args,
             **kwgs
         )
 
-    def pages(self, *args, _suffix=SUFFIX, **kwgs):
+    def pages(self, *args, **kwgs):
+        _suffix = kwgs.pop('_suffix', self.SUFFIX)
         return self._client.paged_call(
             self._path(_suffix),
             *args,
@@ -152,7 +154,7 @@ class Client(object):
 
         return resp_json
 
-    def paged_call(self, *args, page=1, limit=100, sentinel=None, **kwgs):
+    def paged_call(self, *args, **kwgs):
         """
         Generate paged calls to API end points, wraps :meth:`_call`. Provide
         ``sentinel`` in order to stop paging at desired point. If ``sentinel``
@@ -160,7 +162,14 @@ class Client(object):
 
         This can not yield items from response, since some responses are
         dictionaries, while others are lists.
+
+        :keyword page: Page to start at, defaults to 1.
+        :keyword limit: Limit pages to ``limit`` items, defaults to 100.
+        :keyword sentinel: Sentinel value for ``iter()``.
         """
+        page = kwgs.pop('page', 1)
+        limit = kwgs.pop('limit', 100)
+        sentinel = kwgs.pop('sentinel', None)
         query = kwgs.pop('query', {})
         page = count(page)
 
