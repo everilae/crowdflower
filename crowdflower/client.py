@@ -514,3 +514,14 @@ class Client(object):
             job, client=self,
             **self.jobs[job.id].orders[order_id]()
         )
+
+    def get_report(self, job_id, type_='json'):
+        """
+        Download and uncompress reports.
+        """
+        resp = self.jobs[job_id](
+            _suffix='.csv',
+            as_json=False,
+            type=type_
+        )
+        # The response is a ZipFile

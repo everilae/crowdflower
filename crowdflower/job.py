@@ -300,3 +300,10 @@ class Job(Base):
         Order job with ``units_count`` at ``channels``.
         """
         return self._client.debit_order(self, units_count, channels)
+
+    def get_results_report(self):
+        """
+        Download and parse JSON report containing aggregates and
+        individual judgments.
+        """
+        return self._client.get_report(self.id)
