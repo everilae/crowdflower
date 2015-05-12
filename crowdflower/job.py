@@ -306,4 +306,4 @@ class Job(Base):
         Download and parse JSON report containing aggregates and
         individual judgments.
         """
-        return self._client.get_report(self.id)
+        return self._client.get_report(self)

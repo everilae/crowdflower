@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from itertools import count
+from itertools import chain, count
+from zipfile import ZipFile
 from .order import Order
 from .unit import Unit, UnitPromise
 from .job import Job
@@ -515,13 +516,26 @@ class Client(object):
             **self.jobs[job.id].orders[order_id]()
         )
 
-    def get_report(self, job_id, type_='json'):
+    def get_report(self, job, type_='json'):
         """
         Download and uncompress reports.
         """
-        resp = self.jobs[job_id](
+        resp = self.jobs[job.id](
             _suffix='.csv',
             as_json=False,
-            type=type_
+            query=dict(type=type_),
         )
-        # The response is a ZipFile
+        # The response content is a ZipFile (at least it should be)
+        with ZipFile(six.io.BytesIO(resp.content)) as zf:
+            return [
+                Unit(job, client=self, **u)
+                for u in map(json.loads, chain.from_iterable(
+                    map(
+                        lambda bs: (
+                            line for line in bs.decode('utf-8').split('\n')
+                            if line
+                        ),
+                        map(zf.read, zf.namelist())
+                    )
+                ))
+            ]
