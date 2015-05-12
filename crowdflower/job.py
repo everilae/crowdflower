@@ -304,6 +304,7 @@ class Job(Base):
     def get_results_report(self):
         """
         Download and parse JSON report containing aggregates and
-        individual judgments.
+        individual judgments as a list of :class:`Units <~.unit.Unit>`.
+        :returns: list of crowdflower.unit.Unit
         """
         return self._client.get_report(self)

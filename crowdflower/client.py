@@ -518,7 +518,8 @@ class Client(object):
 
     def get_report(self, job, type_='json'):
         """
-        Download and uncompress reports.
+        Download and uncompress reports. Returns a list of
+        :py:class:`Units <crowdflower.unit.Unit>`.
         """
         resp = self.jobs[job.id](
             _suffix='.csv',
