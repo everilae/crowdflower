@@ -32,65 +32,67 @@ class Job(Base):
     """
 
     # RO attributes
-    completed = RoAttribute()
-    completed_at = RoAttribute()
-    created_at = RoAttribute()
-    crowd_costs = RoAttribute()
-    gold = RoAttribute()
-    golds_count = RoAttribute()
-    id = RoAttribute()
-    judgments_count = RoAttribute()
-    units_count = RoAttribute()
-    updated_at = RoAttribute()
+    completed = RoAttribute()  # type: bool
+    completed_at = RoAttribute()  # type: str
+    created_at = RoAttribute()  # type: str
+    crowd_costs = RoAttribute()  # type: int
+    gold = RoAttribute()  # type: dict
+    gold_per_assignment = RoAttribute()  # type: int
+    golds_count = RoAttribute()  # type: int
+    id = RoAttribute()  # type: int
+    judgments_count = RoAttribute()  # type: int
+    state = RoAttribute()  # type: str
+    units_count = RoAttribute()  # type: int
+    updated_at = RoAttribute()  # type: str
 
     # R/W attributes
-    alias = Attribute()
-    auto_order = Attribute()
-    auto_order_threshold = Attribute()
-    auto_order_timeout = Attribute()
-    cml = Attribute()
-    design_verified = Attribute()
-    #: dict
-    fields = Attribute()
-    #: list
-    confidence_fields = Attribute()
-    css = Attribute()
-    custom_key = Attribute()
-    excluded_countries = Attribute()
-    execution_mode = Attribute()
-    expected_judgments_per_unit = Attribute()
-    gold_per_assignment = Attribute()
-    included_countries = Attribute()
-    instructions = Attribute()
-    js = Attribute()
-    judgments_per_unit = Attribute()
-    language = Attribute()
-    max_judgments_per_unit = Attribute()
-    max_judgments_per_contributor = Attribute()
-    min_unit_confidence = Attribute()
-    minimum_account_age_seconds = Attribute()
-    #: dict
-    minimum_requirements = Attribute()
-    #: dict
-    options = Attribute()
-    pages_per_assignment = Attribute()
-    problem = Attribute()
-    public_data = Attribute()
-    require_worker_login = Attribute()
-    send_judgments_webhook = Attribute()
-    state = Attribute()
-    support_email = Attribute()
-    title = Attribute()
-    units_per_assignment = Attribute()
-    units_remain_finalized = Attribute()
-    variable_judgments_mode = Attribute()
-    webhook_uri = Attribute()
+    alias = Attribute()  # type: str
+    auto_order = Attribute()  # type: bool
+    auto_order_threshold = Attribute()  # type: int
+    auto_order_timeout = Attribute()  # type: int
+    cml = Attribute()  # type: str
+    confidence_fields = Attribute()  # type: List[str]
+    css = Attribute()  # type: str
+    excluded_countries = Attribute()  # type: Optional[List[str]]
+    expected_judgments_per_unit = Attribute()  # type: int
+    fields = Attribute()  # type: dict
+    include_unfinished = Attribute()  # type: bool
+    included_countries = Attribute()  # type: List[str]
+    instructions = Attribute()  # type: str
+    js = Attribute()  # type: str
+    judgments_per_unit = Attribute()  # type: int
+    max_judgments_per_unit = Attribute()  # type: int
+    min_unit_confidence = Attribute()  # type: int
+    minimum_requirements = Attribute()  # type: dict
+    options = Attribute()  # type: dict
+    payment_cents = Attribute()  # type: int
+    problem = Attribute()  # type: str
+    support_email = Attribute()  # type: str
+    title = Attribute()  # type: str
+    units_per_assignment = Attribute()  # type: int
+    units_remain_finalized = Attribute()  # type: bool
+    uri = Attribute()  # type: str
+    variable_judgments_mode = Attribute()  # type: str
+    webhook_uri = Attribute()  # type: str
 
-    # Undocumented attributes, defaulted to RO
+    # Undocumented/deprecated attributes, defaulted to RO, no idea of types...
     copied_from = RoAttribute()
+    design_verified = RoAttribute()
     desired_requirements = RoAttribute()
+    execution_mode = RoAttribute()
+    language = RoAttribute()
+    max_judgments_per_ip = RoAttribute()
+    max_judgments_per_worker = RoAttribute()
+    max_work_per_network = RoAttribute()
+    minimum_account_age_seconds = RoAttribute()
     order_approved = RoAttribute()
+    pages_per_assignment = RoAttribute()
     project_number = RoAttribute()
+    public_data = RoAttribute()
+    quiz_mode_enabled = RoAttribute()
+    require_worker_login = RoAttribute()
+    secret = RoAttribute()
+    send_judgments_webhook = RoAttribute()
     worker_ui_remix = RoAttribute()
 
     def __init__(self, client=None, **data):
@@ -115,7 +117,7 @@ class Job(Base):
         method raises a :exc:`RuntimeError`, if any of them is missing.
 
            "At minimum, your job must have a valid title, instructions, and one
-           required CML form element to be saved successfully." [1]_
+           *required* CML form element to be saved successfully." [1]_
 
         .. warning::
 
@@ -123,8 +125,8 @@ class Job(Base):
            'instructions', but nothing will change on the server side without
            all three. The caller is responsible for providing valid CML.
 
-        .. [1] http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes#header_1
-           (Fri Sep 5 11:38:42 UTC 2014)
+        .. [1] https://success.crowdflower.com/hc/en-us/articles/202703435-CrowdFlower-API-Jobs-Resource-Attributes
+           (Tue Jun 30 07:31:00 UTC 2015)
 
         :raises RuntimeError: if :attr:`title`, :attr:`instructions` or :attr:`cml`
                               is missing
