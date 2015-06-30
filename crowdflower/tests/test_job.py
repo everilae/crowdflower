@@ -64,45 +64,50 @@ data = {'minimum_requirements': None,
         'quiz_mode_enabled': False}
 
 
-class TestJobAttributes(unittest.TestCase):
+def _make_job():
+    return Job(client=None, **data)
 
-    def setUp(self):
-        self.job = Job(client=None, **data)
+
+class TestJobAttributes(unittest.TestCase):
 
     def test_get_attributes(self):
         """
         Attributes provide correct values.
         """
+        job = _make_job()
         for k, v in data.items():
-            self.assertEqual(getattr(self.job, k), v)
+            self.assertEqual(getattr(job, k), v)
 
     def test_rw_attributes(self):
         """
         RW attributes can be set.
         """
+        job = _make_job()
         for name, _ in getmembers(
                 Job, lambda x: type(x) is Attribute):
             v = object()
-            setattr(self.job, name, v)
-            self.assertEqual(getattr(self.job, name), v)
+            setattr(job, name, v)
+            self.assertEqual(getattr(job, name), v)
 
     def test_ro_attributes(self):
         """
         RO attributes cannot be set.
         """
+        job = _make_job()
         for name, _ in getmembers(
                 Job, lambda x: type(x) is RoAttribute):
             with self.assertRaises(AttributeError):
-                setattr(self.job, name, "FAIL")
+                setattr(job, name, "FAIL")
 
     def test_wo_attributes(self):
         """
         WO attributes cannot be read.
         """
+        job = _make_job()
         for name, _ in getmembers(
                 Job, lambda x: type(x) is WoAttribute):
             v = object()
-            setattr(self.job, name, v)
-            self.assertEqual(self.job._changes[name], v)
+            setattr(job, name, v)
+            self.assertEqual(job._changes[name], v)
             with self.assertRaises(AttributeError):
-                getattr(self.job, name)
+                getattr(job, name)
