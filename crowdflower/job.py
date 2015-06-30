@@ -23,7 +23,7 @@ class Job(Base):
     CrowdFlower Job.
 
     Documentation for attributes can be found at
-    http://success.crowdflower.com/customer/portal/articles/1580923-jobs-resource-attributes .
+    https://success.crowdflower.com/hc/en-us/articles/202703435-CrowdFlower-API-Jobs-Resource-Attributes.
 
     :param data: Job JSON dictionary
     :type data: dict
