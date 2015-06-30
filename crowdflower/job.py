@@ -36,7 +36,7 @@ class Job(Base):
     completed_at = RoAttribute()  # type: str
     created_at = RoAttribute()  # type: str
     crowd_costs = RoAttribute()  # type: float
-    gold = RoAttribute()  # type: dict
+    gold = RoAttribute()  # type: Dict[str, str]
     gold_per_assignment = RoAttribute()  # type: int
     golds_count = RoAttribute()  # type: int
     id = RoAttribute()  # type: int
@@ -46,25 +46,25 @@ class Job(Base):
     updated_at = RoAttribute()  # type: str
 
     # R/W attributes
-    alias = Attribute()  # type: str
+    alias = Attribute()  # type: Optional[str]
     auto_order = Attribute()  # type: bool
     auto_order_threshold = Attribute()  # type: int
-    auto_order_timeout = Attribute()  # type: int
+    auto_order_timeout = Attribute()  # type: Optional[int]
     cml = Attribute()  # type: str
     confidence_fields = Attribute()  # type: List[str]
     css = Attribute()  # type: str
     excluded_countries = Attribute()  # type: Optional[List[str]]
-    expected_judgments_per_unit = Attribute()  # type: int
-    fields = Attribute()  # type: dict
+    expected_judgments_per_unit = Attribute()  # type: Optional[int]
+    fields = Attribute()  # type: Dict[str, str]
     include_unfinished = Attribute()  # type: bool
-    included_countries = Attribute()  # type: List[str]
+    included_countries = Attribute()  # type: List[Dict[str, str]]
     instructions = Attribute()  # type: str
     js = Attribute()  # type: str
     judgments_per_unit = Attribute()  # type: int
-    max_judgments_per_unit = Attribute()  # type: int
-    min_unit_confidence = Attribute()  # type: int
-    minimum_requirements = Attribute()  # type: dict
-    options = Attribute()  # type: dict
+    max_judgments_per_unit = Attribute()  # type: Optional[int]
+    min_unit_confidence = Attribute()  # type: Optional[int]
+    minimum_requirements = Attribute()  # type: Optional[dict]
+    options = Attribute()  # type: Dict[str, ...]
     payment_cents = Attribute()  # type: float
     problem = Attribute()  # type: str
     support_email = Attribute()  # type: str
@@ -73,7 +73,7 @@ class Job(Base):
     units_remain_finalized = Attribute()  # type: bool
     uri = Attribute()  # type: str
     variable_judgments_mode = Attribute()  # type: str
-    webhook_uri = Attribute()  # type: str
+    webhook_uri = Attribute()  # type: Optional[str]
 
     # Undocumented/deprecated attributes, defaulted to RO, no idea of types...
     copied_from = RoAttribute()
