@@ -35,7 +35,7 @@ class Job(Base):
     completed = RoAttribute()  # type: bool
     completed_at = RoAttribute()  # type: str
     created_at = RoAttribute()  # type: str
-    crowd_costs = RoAttribute()  # type: int
+    crowd_costs = RoAttribute()  # type: float
     gold = RoAttribute()  # type: dict
     gold_per_assignment = RoAttribute()  # type: int
     golds_count = RoAttribute()  # type: int
@@ -65,7 +65,7 @@ class Job(Base):
     min_unit_confidence = Attribute()  # type: int
     minimum_requirements = Attribute()  # type: dict
     options = Attribute()  # type: dict
-    payment_cents = Attribute()  # type: int
+    payment_cents = Attribute()  # type: float
     problem = Attribute()  # type: str
     support_email = Attribute()  # type: str
     title = Attribute()  # type: str
