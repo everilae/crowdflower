@@ -12,7 +12,7 @@ except ImportError:
 
 setup(
     name="crowdflower",
-    version="0.1.0",
+    version="0.2.0",
     author=u"Ilja Everilä",
     author_email="ilja.everila@liilak.com",
     maintainer=u"Ilja Everilä",
@@ -35,6 +35,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    download_url='https://github.com/everilae/crowdflower/tarball/0.1.0',
+    download_url='https://github.com/everilae/crowdflower/tarball/0.2.0',
 )
 
