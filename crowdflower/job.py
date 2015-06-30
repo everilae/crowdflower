@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from .base import Base, Attribute, RoAttribute
+from .base import Base, Attribute, RoAttribute, WoAttribute
 from .worker import Worker
 from functools import wraps
 
@@ -56,7 +56,6 @@ class Job(Base):
     excluded_countries = Attribute()  # type: Optional[List[str]]
     expected_judgments_per_unit = Attribute()  # type: Optional[int]
     fields = Attribute()  # type: Dict[str, str]
-    include_unfinished = Attribute()  # type: bool
     included_countries = Attribute()  # type: List[Dict[str, str]]
     instructions = Attribute()  # type: str
     js = Attribute()  # type: str
@@ -66,12 +65,12 @@ class Job(Base):
     minimum_requirements = Attribute()  # type: Optional[dict]
     options = Attribute()  # type: Dict[str, ...]
     payment_cents = Attribute()  # type: float
-    problem = Attribute()  # type: str
+    #problem = Attribute()  # type: str
     support_email = Attribute()  # type: str
     title = Attribute()  # type: str
     units_per_assignment = Attribute()  # type: int
     units_remain_finalized = Attribute()  # type: bool
-    uri = Attribute()  # type: str
+    uri = WoAttribute()  # type: str
     variable_judgments_mode = Attribute()  # type: str
     webhook_uri = Attribute()  # type: Optional[str]
 

@@ -32,6 +32,16 @@ class RoAttribute(Attribute):
             "cannot change read only attribute '{}'".format(self.name))
 
 
+class WoAttribute(Attribute):
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+
+        raise AttributeError(
+            "cannot read write only attribute '{}'".format(self.name))
+
+
 class _AttributeMeta(type):
     """
     An evil hack that inspects certain types of attributes and sets
