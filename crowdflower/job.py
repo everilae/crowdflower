@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
 from .base import Base, Attribute, RoAttribute, WoAttribute
+from operator import itemgetter
 from .worker import Worker
 from functools import wraps
 
@@ -309,3 +310,38 @@ class Job(Base):
         :returns: list of crowdflower.unit.Unit
         """
         return self._client.get_report(self)
+
+    # noinspection PyAttributeOutsideInit
+    @property
+    def tags(self):
+        """
+        List of tags.
+        """
+        try:
+            return self._tags
+
+        except AttributeError:
+            self._tags = list(map(itemgetter('name'),
+                                  self._client.get_job_tags(self)))
+            return self._tags
+
+    # noinspection PyAttributeOutsideInit
+    @tags.setter
+    def tags(self, tags):
+        """
+        List of tags.
+        """
+        self._client.set_job_tags(self, tags)
+        self._tags = tags
+
+    # noinspection PyAttributeOutsideInit
+    def add_tag(self, tag):
+        """
+        Add tag.
+        """
+        self._client.add_job_tag(self, tag)
+        try:
+            self._tags.append(tag)
+
+        except AttributeError:
+            self._tags = [tag]

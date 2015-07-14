@@ -118,10 +118,12 @@ class Client(object):
         if method == 'get' and (data or files):
             method = 'post'
 
+        url = self.API_URL.format(path=path)
+
         try:
             resp = requests.request(
                 method=method,
-                url=self.API_URL.format(path=path),
+                url=url,
                 params=dict(key=self._key, **query),
                 data=data,
                 headers=dict(accept='application/json', **headers),
@@ -129,15 +131,16 @@ class Client(object):
             )
 
         except Exception as e:
-            raise ApiError("Api request failed: {}".format(e))
+            raise ApiError("Api request to {} failed: {}".format(url, e))
 
         try:
             # Raise an exception, if server responded with 50x or so
             resp.raise_for_status()
 
         except requests.exceptions.RequestException as re:
-            raise ApiError("API request failed: {} (resp.content={})".format(
-                re, resp.content))
+            raise ApiError(
+                "API request to {} failed: {} (resp.content={})".format(
+                    url, re, resp.content))
 
         if not as_json:
             # Caller knows what to do, hopefully
@@ -540,3 +543,22 @@ class Client(object):
                     )
                 ))
             ]
+
+    def get_job_tags(self, job):
+        """
+        Get tags for :py:class:`job <crowdflower.job.Job>`.
+        """
+        return self.jobs[job.id].tags(_suffix=None)
+
+    def add_job_tag(self, job, tag):
+        """
+        Add tag to job.
+        """
+        self.jobs[job.id].tags(_suffix=None, data=dict(tags=tag))
+
+    def set_job_tags(self, job, tags):
+        """
+        Set tags for job.
+        """
+        self.jobs[job.id].tags(_suffix=None, data=dict(tags=', '.join(tags)),
+                               method='put')
