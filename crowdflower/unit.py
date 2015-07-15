@@ -68,3 +68,9 @@ class Unit(JobResource):
 
         except KeyError:
             return default
+
+    def cancel(self):
+        """
+        Cancel unit.
+        """
+        self._client.cancel_unit(self.job_id, self.id)

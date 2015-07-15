@@ -578,3 +578,9 @@ class Client(object):
         Convert uploaded gold to test questions.
         """
         self.jobs[job_id].gold(_suffix=None, method='put')
+
+    def cancel_unit(self, job_id, unit_id):
+        """
+        Cancel unit.
+        """
+        self.jobs[job_id].units[unit_id].cancel(method='post')
