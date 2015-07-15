@@ -26,8 +26,19 @@ def _nopcontext(file):
 
 class ApiError(Exception):
     """
-    Base class for API errors.
+    API error class, wraps HTTP exceptions and such.
     """
+
+    def __str__(self):
+        return self.args[0]
+
+    @property
+    def response(self):
+        return self.args[1]
+
+    @property
+    def request(self):
+        return self.args[2]
 
 
 class PathFactory:
@@ -119,7 +130,7 @@ class Client(object):
             method = 'post'
 
         url = self.API_URL.format(path=path)
-
+        resp = None
         try:
             resp = requests.request(
                 method=method,
@@ -130,37 +141,36 @@ class Client(object):
                 files=files
             )
 
-        except Exception as e:
-            raise ApiError("Api request to {} failed: {}".format(url, e))
-
-        try:
             # Raise an exception, if server responded with 50x or so
             resp.raise_for_status()
 
-        except requests.exceptions.RequestException as re:
-            raise ApiError(
-                "API request to {} failed: {} (resp.content={})".format(
-                    url, re, resp.content))
+            if not as_json:
+                # Caller knows what to do, hopefully
+                return resp
 
-        if not as_json:
-            # Caller knows what to do, hopefully
-            return resp
-
-        try:
             resp_json = resp.json()
 
-        except Exception:
-            _log.exception(
-                "CrowdFlower API request failed: response %r, data %r",
-                resp.content, data
+            if 'error' in resp_json:
+                raise RuntimeError(resp_json['error'])
+
+            elif 'errors' in resp_json:
+                raise RuntimeError(*resp_json['errors'])
+
+        except Exception as e:
+            # Wrap all exceptions as ApiErrors, python 3 has the benefit of
+            # chained exceptions that allow inspecting the true reason through
+            # __context__ property.
+            raise ApiError(
+                # This is rather spammy, but nice when hacking around in shell
+                "CrowdFlower API {method} request to {url} failed: {error}\n"
+                "Response: {resp}".format(
+                    url=url,
+                    error=e,
+                    method=method.upper(),
+                    resp=getattr(resp, 'text', None)),
+                resp,
+                getattr(resp, 'request', None)
             )
-            raise
-
-        if 'error' in resp_json:
-            raise ApiError(resp_json['error'])
-
-        elif 'errors' in resp_json:
-            raise ApiError(*resp_json['errors'])
 
         return resp_json
 
