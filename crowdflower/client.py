@@ -544,21 +544,21 @@ class Client(object):
                 ))
             ]
 
-    def get_job_tags(self, job):
+    def get_job_tags(self, job_id):
         """
         Get tags for :py:class:`job <crowdflower.job.Job>`.
         """
-        return self.jobs[job.id].tags(_suffix=None)
+        return self.jobs[job_id].tags(_suffix=None)
 
-    def add_job_tag(self, job, tag):
+    def add_job_tag(self, job_id, tag):
         """
         Add tag to job.
         """
-        self.jobs[job.id].tags(_suffix=None, data=dict(tags=tag))
+        self.jobs[job_id].tags(_suffix=None, data=dict(tags=tag))
 
-    def set_job_tags(self, job, tags):
+    def set_job_tags(self, job_id, tags):
         """
         Set tags for job.
         """
-        self.jobs[job.id].tags(_suffix=None, data=dict(tags=', '.join(tags)),
+        self.jobs[job_id].tags(_suffix=None, data=dict(tags=', '.join(tags)),
                                method='put')

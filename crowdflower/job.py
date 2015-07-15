@@ -322,7 +322,7 @@ class Job(Base):
 
         except AttributeError:
             self._tags = list(map(itemgetter('name'),
-                                  self._client.get_job_tags(self)))
+                                  self._client.get_job_tags(self.id)))
             return self._tags
 
     # noinspection PyAttributeOutsideInit
@@ -331,7 +331,7 @@ class Job(Base):
         """
         List of tags.
         """
-        self._client.set_job_tags(self, tags)
+        self._client.set_job_tags(self.id, tags)
         self._tags = tags
 
     # noinspection PyAttributeOutsideInit
@@ -339,7 +339,7 @@ class Job(Base):
         """
         Add tag.
         """
-        self._client.add_job_tag(self, tag)
+        self._client.add_job_tag(self.id, tag)
         try:
             self._tags.append(tag)
 
