@@ -572,3 +572,9 @@ class Client(object):
         """
         self.jobs[job_id].tags(_suffix=None, data=dict(tags=', '.join(tags)),
                                method='put')
+
+    def convert_job_test_questions(self, job_id):
+        """
+        Convert uploaded gold to test questions.
+        """
+        self.jobs[job_id].gold(_suffix=None, method='put')

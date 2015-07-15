@@ -345,3 +345,9 @@ class Job(Base):
 
         except AttributeError:
             self._tags = [tag]
+
+    def convert_test_questions(self):
+        """
+        Convert uploaded golden units to test questions.
+        """
+        self._client.convert_job_test_questions(self.id)
